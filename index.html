@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIO 130 Microbiology — Interactive Tutor</title>
+<style>
+  :root {
+    --navy: #1E3A8A;
+    --purple: #7C3AED;
+    --lavender: #A855F7;
+    --emerald: #10B981;
+    --red: #EF4444;
+    --amber: #F59E0B;
+    --bg: #F8F7FF;
+    --card: #FFFFFF;
+    --text: #1E1B4B;
+    --muted: #6B7280;
+    --border: #E5E7EB;
+    --shadow: 0 4px 24px rgba(124,58,237,0.10);
+    --shadow-lg: 0 8px 40px rgba(124,58,237,0.16);
+  }
+  [data-theme="dark"] {
+    --bg: #0F0C29;
+    --card: #1A1744;
+    --text: #EDE9FE;
+    --muted: #A78BFA;
+    --border: #312E81;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; min-height: 100vh; }
+
+  /* NAV */
+  .nav { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+  .nav-brand { font-size: 1.1rem; font-weight: 700; background: linear-gradient(135deg, #1E3A8A, #7C3AED); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .nav-tools { display: flex; gap: 8px; align-items: center; }
+  .icon-btn { background: none; border: 1.5px solid var(--border); color: var(--text); border-radius: 10px; width: 38px; height: 38px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s; }
+  .icon-btn:hover { background: linear-gradient(135deg, #7C3AED22, #1E3A8A22); border-color: var(--purple); }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, #1E3A8A 0%, #4C1D95 50%, #7C3AED 100%); min-height: calc(100vh - 60px); display: flex; align-items: center; justify-content: center; text-align: center; padding: 3rem 2rem; }
+  .hero-content { max-width: 700px; }
+  .hero-badge { display: inline-block; background: rgba(255,255,255,0.15); color: #fff; padding: 6px 18px; border-radius: 999px; font-size: 0.85rem; letter-spacing: 0.5px; margin-bottom: 1.5rem; border: 1px solid rgba(255,255,255,0.25); }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 0.75rem; }
+  .hero h1 span { color: #C4B5FD; }
+  .hero-sub { font-size: 1.15rem; color: #C4B5FD; margin-bottom: 0.5rem; }
+  .hero-tagline { font-size: 0.95rem; color: rgba(255,255,255,0.65); margin-bottom: 2.5rem; letter-spacing: 1.5px; }
+  .hero-btns { display: flex; gap: 1.25rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+  .hero-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; background: rgba(255,255,255,0.12); border: 1.5px solid rgba(255,255,255,0.25); color: #fff; padding: 1.5rem 2.5rem; border-radius: 20px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.3s; min-width: 220px; backdrop-filter: blur(10px); }
+  .hero-btn:hover { background: rgba(255,255,255,0.22); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(124,58,237,0.4); border-color: rgba(255,255,255,0.5); }
+  .hero-btn .btn-icon { font-size: 2rem; }
+  .hero-btn .btn-label { font-size: 0.8rem; color: #C4B5FD; font-weight: 400; }
+
+  /* MASTERY OVERVIEW on hero */
+  .mastery-overview { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 18px; padding: 1.25rem 1.5rem; max-width: 600px; margin: 0 auto; text-align: left; }
+  .mastery-overview h4 { color: #C4B5FD; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; text-align: center; }
+  .mastery-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .mastery-label { font-size: 0.78rem; color: #fff; min-width: 110px; }
+  .mastery-bar-bg { flex: 1; height: 8px; background: rgba(255,255,255,0.15); border-radius: 999px; overflow: hidden; }
+  .mastery-bar-fill { height: 100%; border-radius: 999px; transition: width 0.6s ease; }
+  .mastery-pct { font-size: 0.75rem; color: #C4B5FD; min-width: 34px; text-align: right; }
+
+  /* CONTENT WRAP */
+  .content-wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+  .section-header h2 { font-size: 1.6rem; font-weight: 700; background: linear-gradient(135deg, var(--navy), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .back-btn { background: none; border: 1.5px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 10px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+  .back-btn:hover { border-color: var(--purple); color: var(--purple); }
+
+  /* TOPIC GRID */
+  .topic-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .topic-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 18px; padding: 1.5rem; cursor: pointer; transition: all 0.25s; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .topic-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--purple); }
+  .topic-card .tc-icon { font-size: 2rem; margin-bottom: 10px; }
+  .topic-card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .topic-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+  .topic-card .tc-badge { display: inline-block; font-size: 0.72rem; padding: 3px 10px; border-radius: 999px; font-weight: 600; }
+  .badge-high { background: #F3E8FF; color: #7C3AED; }
+  .badge-clinical { background: #D1FAE5; color: #065F46; }
+  .badge-pharm { background: #FEF3C7; color: #92400E; }
+  .tc-mastery { margin-top: 8px; height: 5px; border-radius: 999px; background: var(--border); overflow: hidden; }
+  .tc-mastery-fill { height: 100%; border-radius: 999px; transition: width 0.5s; }
+  .tc-mastery-label { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+  .topic-card.mastered { border-color: var(--emerald); }
+  .topic-card.mastered::after { content: '✓'; position: absolute; top: 12px; right: 12px; background: var(--emerald); color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+
+  /* INFO BOXES */
+  .info-box { border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1rem; border-left: 4px solid; }
+  .ib-high-yield { background: #F3E8FF; border-color: #7C3AED; }
+  .ib-high-yield .ib-label { color: #7C3AED; }
+  .ib-definition { background: #EFF6FF; border-color: #3B82F6; }
+  .ib-definition .ib-label { color: #1D4ED8; }
+  .ib-clinical { background: #ECFDF5; border-color: #10B981; }
+  .ib-clinical .ib-label { color: #065F46; }
+  .ib-exam-tip { background: #FFF7ED; border-color: #F97316; }
+  .ib-exam-tip .ib-label { color: #C2410C; }
+  .ib-mistake { background: #FEF2F2; border-color: #EF4444; }
+  .ib-mistake .ib-label { color: #B91C1C; }
+  .ib-memory { background: #F0FDF4; border-color: #22C55E; }
+  .ib-memory .ib-label { color: #15803D; }
+  .ib-summary { background: linear-gradient(135deg, #EFF6FF, #F3E8FF); border-color: var(--purple); }
+  .ib-summary .ib-label { color: var(--purple); }
+  [data-theme="dark"] .ib-high-yield { background: #3B0764; }
+  [data-theme="dark"] .ib-definition { background: #1E3A8A22; }
+  [data-theme="dark"] .ib-clinical { background: #064E3B22; }
+  [data-theme="dark"] .ib-exam-tip { background: #7C2D1222; }
+  [data-theme="dark"] .ib-mistake { background: #7F1D1D22; }
+  [data-theme="dark"] .ib-memory { background: #14532D22; }
+  [data-theme="dark"] .ib-summary { background: #1E1B4B; }
+  .ib-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .ib-content { font-size: 0.9rem; line-height: 1.6; color: var(--text); }
+
+  /* CONTENT SECTIONS */
+  .content-section { background: var(--card); border-radius: 18px; padding: 2rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .content-section h3 { font-size: 1.2rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border); }
+  [data-theme="dark"] .content-section h3 { color: #C4B5FD; }
+  .content-section h4 { font-size: 1rem; font-weight: 600; color: var(--purple); margin: 1rem 0 0.5rem; }
+  .content-section p { font-size: 0.9rem; line-height: 1.7; color: var(--text); margin-bottom: 0.75rem; }
+  .content-section ul { padding-left: 1.25rem; margin-bottom: 0.75rem; }
+  .content-section li { font-size: 0.9rem; line-height: 1.7; color: var(--text); margin-bottom: 2px; }
+
+  /* STEP DIAGRAM */
+  .step-flow { display: flex; flex-direction: column; gap: 0; margin: 1rem 0; }
+  .step-item { display: flex; align-items: flex-start; gap: 12px; position: relative; }
+  .step-item:not(:last-child)::before { content: ''; position: absolute; left: 19px; top: 38px; width: 2px; height: calc(100% - 16px); background: linear-gradient(to bottom, var(--purple), var(--lavender)); }
+  .step-num { width: 38px; height: 38px; min-width: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--navy), var(--purple)); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; margin-bottom: 16px; }
+  .step-body { padding-bottom: 8px; }
+  .step-body strong { display: block; font-size: 0.9rem; color: var(--text); font-weight: 600; }
+  .step-body span { font-size: 0.83rem; color: var(--muted); }
+
+  /* GRAM TABLE */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .compare-table th { background: linear-gradient(135deg, #1E3A8A, #7C3AED); color: #fff; padding: 10px 14px; text-align: left; }
+  .compare-table th:first-child { border-radius: 10px 0 0 0; }
+  .compare-table th:last-child { border-radius: 0 10px 0 0; }
+  .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .compare-table tr:nth-child(even) td { background: var(--bg); }
+  .purple-pill { background: #7C3AED22; color: #7C3AED; padding: 2px 10px; border-radius: 999px; font-weight: 600; }
+  .pink-pill { background: #F9A8D422; color: #BE185D; padding: 2px 10px; border-radius: 999px; font-weight: 600; }
+  [data-theme="dark"] .purple-pill { background: #7C3AED44; color: #C4B5FD; }
+  [data-theme="dark"] .pink-pill { background: #BE185D33; color: #FBCFE8; }
+
+  /* ===================== KNOWLEDGE CHECK SYSTEM ===================== */
+  .knowledge-check { background: linear-gradient(135deg, #F3E8FF, #EFF6FF); border: 2px solid var(--purple); border-radius: 18px; padding: 1.5rem; margin: 1.5rem 0; }
+  [data-theme="dark"] .knowledge-check { background: linear-gradient(135deg, #3B076422, #1E3A8A22); border-color: var(--lavender); }
+  .kc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; }
+  .kc-header .kc-icon { font-size: 1.4rem; }
+  .kc-header h4 { font-size: 1rem; font-weight: 700; color: var(--purple); }
+  .kc-header .kc-type { font-size: 0.72rem; background: var(--purple); color: #fff; padding: 2px 10px; border-radius: 999px; margin-left: auto; }
+  .kc-question { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 1rem; line-height: 1.5; }
+  .kc-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+  .kc-option { background: var(--card); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px 16px; cursor: pointer; font-size: 0.88rem; color: var(--text); transition: all 0.2s; display: flex; align-items: center; gap: 10px; text-align: left; }
+  .kc-option:hover:not(.locked) { border-color: var(--purple); background: #F3E8FF44; transform: translateX(3px); }
+  .kc-option.correct { border-color: #10B981; background: #D1FAE5; color: #065F46; cursor: default; }
+  .kc-option.incorrect { border-color: #EF4444; background: #FEE2E2; color: #991B1B; cursor: default; }
+  .kc-option.reveal { border-color: #10B981; background: #D1FAE522; cursor: default; }
+  .kc-option.locked { cursor: default; }
+  [data-theme="dark"] .kc-option.correct { background: #064E3B44; color: #6EE7B7; }
+  [data-theme="dark"] .kc-option.incorrect { background: #7F1D1D44; color: #FCA5A5; }
+  [data-theme="dark"] .kc-option.reveal { background: #064E3B22; }
+  .opt-letter { width: 28px; height: 28px; min-width: 28px; border-radius: 7px; background: var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.78rem; flex-shrink: 0; }
+  .kc-option.correct .opt-letter { background: #10B981; color: #fff; }
+  .kc-option.incorrect .opt-letter { background: #EF4444; color: #fff; }
+  .kc-feedback { padding: 1rem 1.25rem; border-radius: 12px; font-size: 0.88rem; line-height: 1.6; display: none; margin-bottom: 1rem; }
+  .kc-feedback.show-fb { display: block; }
+  .kc-feedback.correct-fb { background: #D1FAE5; border: 1px solid #6EE7B7; color: #065F46; }
+  .kc-feedback.incorrect-fb { background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; }
+  [data-theme="dark"] .kc-feedback.correct-fb { background: #064E3B44; color: #6EE7B7; border-color: #10B981; }
+  [data-theme="dark"] .kc-feedback.incorrect-fb { background: #7F1D1D44; color: #FCA5A5; border-color: #EF4444; }
+
+  /* TRUE/FALSE */
+  .tf-options { display: flex; gap: 10px; margin-bottom: 1rem; }
+  .tf-btn { flex: 1; padding: 12px; border: 1.5px solid var(--border); border-radius: 12px; cursor: pointer; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; background: var(--card); color: var(--text); }
+  .tf-btn:hover:not(.locked) { transform: translateY(-2px); }
+  .tf-btn.tf-true:hover:not(.locked) { border-color: #10B981; background: #D1FAE522; }
+  .tf-btn.tf-false:hover:not(.locked) { border-color: #EF4444; background: #FEE2E222; }
+  .tf-btn.correct { border-color: #10B981; background: #D1FAE5; color: #065F46; }
+  .tf-btn.incorrect { border-color: #EF4444; background: #FEE2E2; color: #991B1B; }
+  .tf-btn.locked { cursor: default; }
+  [data-theme="dark"] .tf-btn.correct { background: #064E3B44; color: #6EE7B7; }
+  [data-theme="dark"] .tf-btn.incorrect { background: #7F1D1D44; color: #FCA5A5; }
+
+  /* FILL IN THE BLANK */
+  .fitb-wrap { display: flex; flex-direction: column; gap: 10px; }
+  .fitb-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.9rem; color: var(--text); line-height: 1.8; }
+  .fitb-input { border: 2px solid var(--purple); border-radius: 8px; padding: 4px 10px; font-size: 0.88rem; background: var(--bg); color: var(--text); min-width: 140px; outline: none; transition: all 0.2s; }
+  .fitb-input:focus { box-shadow: 0 0 0 3px rgba(124,58,237,0.2); }
+  .fitb-input.correct-input { border-color: #10B981; background: #D1FAE5; color: #065F46; }
+  .fitb-input.incorrect-input { border-color: #EF4444; background: #FEE2E2; color: #991B1B; }
+  .fitb-check-btn { background: linear-gradient(135deg, var(--purple), var(--lavender)); color: #fff; border: none; border-radius: 10px; padding: 8px 18px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 8px; align-self: flex-start; }
+  .fitb-check-btn:hover { transform: translateY(-2px); }
+
+  /* DRAG AND DROP MATCHING */
+  .match-container { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .match-terms, .match-defs { display: flex; flex-direction: column; gap: 8px; }
+  .match-col-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 4px; }
+  .draggable { background: var(--card); border: 1.5px solid var(--purple); border-radius: 10px; padding: 10px 14px; font-size: 0.83rem; cursor: grab; transition: all 0.2s; color: var(--text); user-select: none; }
+  .draggable:active { cursor: grabbing; opacity: 0.7; }
+  .draggable.dragging { opacity: 0.5; box-shadow: 0 8px 20px rgba(124,58,237,0.3); }
+  .drop-zone { background: var(--bg); border: 2px dashed var(--border); border-radius: 10px; padding: 10px 14px; font-size: 0.83rem; min-height: 44px; transition: all 0.2s; color: var(--muted); }
+  .drop-zone.drag-over { border-color: var(--purple); background: #F3E8FF44; }
+  .drop-zone.matched-correct { border-color: #10B981; background: #D1FAE5; border-style: solid; color: #065F46; }
+  .drop-zone.matched-incorrect { border-color: #EF4444; background: #FEE2E2; border-style: solid; color: #991B1B; }
+  [data-theme="dark"] .drop-zone.matched-correct { background: #064E3B44; color: #6EE7B7; }
+  [data-theme="dark"] .drop-zone.matched-incorrect { background: #7F1D1D44; color: #FCA5A5; }
+  .match-check-btn { background: linear-gradient(135deg, var(--purple), var(--lavender)); color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .match-check-btn:hover { transform: translateY(-2px); }
+  .match-reset-btn { background: var(--bg); color: var(--text); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 16px; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+  .match-reset-btn:hover { border-color: var(--purple); color: var(--purple); }
+  .match-btns { display: flex; gap: 8px; }
+
+  /* REVEAL ANSWER */
+  .reveal-wrap { margin: 1rem 0; }
+  .reveal-prompt { font-size: 0.88rem; font-style: italic; color: var(--muted); margin-bottom: 8px; }
+  .reveal-btn { background: var(--bg); border: 1.5px solid var(--purple); color: var(--purple); border-radius: 10px; padding: 8px 18px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .reveal-btn:hover { background: #F3E8FF; }
+  .reveal-answer { display: none; background: #EFF6FF; border: 1px solid #3B82F6; border-radius: 12px; padding: 1rem; margin-top: 8px; font-size: 0.88rem; color: #1D4ED8; line-height: 1.6; }
+  [data-theme="dark"] .reveal-answer { background: #1E3A8A22; color: #93C5FD; border-color: #3B82F6; }
+  .reveal-answer.open { display: block; }
+
+  /* CLINICAL SCENARIO & PROFESSOR THINK */
+  .scenario-box { background: linear-gradient(135deg, #ECFDF5, #EFF6FF); border: 2px solid var(--emerald); border-radius: 16px; padding: 1.5rem; margin: 1rem 0; }
+  [data-theme="dark"] .scenario-box { background: linear-gradient(135deg, #064E3B11, #1E3A8A11); border-color: var(--emerald); }
+  .scenario-box .scenario-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--emerald); margin-bottom: 8px; }
+  .scenario-box .scenario-q { font-size: 0.92rem; line-height: 1.6; color: var(--text); margin-bottom: 1rem; font-weight: 500; }
+  .professor-box { background: linear-gradient(135deg, #FFF7ED, #FFFBEB); border: 2px solid var(--amber); border-radius: 16px; padding: 1.5rem; margin: 1rem 0; }
+  [data-theme="dark"] .professor-box { background: linear-gradient(135deg, #7C2D1211, #92400E11); border-color: var(--amber); }
+  .professor-box .prof-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #D97706; margin-bottom: 8px; }
+  .professor-box .prof-q { font-size: 0.92rem; line-height: 1.6; color: var(--text); margin-bottom: 1rem; font-weight: 500; }
+
+  /* LESSON SUMMARY FOOTER */
+  .lesson-footer { background: var(--card); border-radius: 18px; padding: 1.5rem; margin: 1.5rem 0; border: 2px solid var(--emerald); box-shadow: var(--shadow); }
+  .lesson-footer h4 { font-size: 1rem; font-weight: 700; color: var(--emerald); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .lesson-footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .lf-item { border-radius: 12px; padding: 1rem; font-size: 0.83rem; line-height: 1.6; }
+  .lf-summary { background: #EFF6FF; border-left: 3px solid #3B82F6; }
+  .lf-memory { background: #F0FDF4; border-left: 3px solid #22C55E; }
+  .lf-exam { background: #FFF7ED; border-left: 3px solid #F97316; }
+  .lf-mistake { background: #FEF2F2; border-left: 3px solid #EF4444; }
+  [data-theme="dark"] .lf-summary { background: #1E3A8A22; }
+  [data-theme="dark"] .lf-memory { background: #14532D22; }
+  [data-theme="dark"] .lf-exam { background: #7C2D1222; }
+  [data-theme="dark"] .lf-mistake { background: #7F1D1D22; }
+  .lf-item strong { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .lf-summary strong { color: #1D4ED8; }
+  .lf-memory strong { color: #15803D; }
+  .lf-exam strong { color: #C2410C; }
+  .lf-mistake strong { color: #B91C1C; }
+
+  /* NEXT LESSON BUTTON */
+  .next-lesson-btn { background: linear-gradient(135deg, var(--navy), var(--purple)); color: #fff; border: none; border-radius: 14px; padding: 14px 32px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+  .next-lesson-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,58,237,0.35); }
+  .locked-btn { background: var(--bg); color: var(--muted); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px 32px; font-size: 1rem; font-weight: 600; cursor: not-allowed; display: flex; align-items: center; gap: 8px; }
+  .btn-row { display: flex; align-items: center; gap: 12px; margin-top: 1.5rem; flex-wrap: wrap; }
+
+  /* MASTERY COMPLETION */
+  .mastery-complete { background: linear-gradient(135deg, #1E3A8A, #7C3AED); border-radius: 20px; padding: 3rem 2rem; text-align: center; color: #fff; margin: 2rem 0; }
+  .mastery-complete h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 1rem; }
+  .mastery-complete p { font-size: 1rem; color: #C4B5FD; }
+
+  /* ===================== PRACTICE TEST ===================== */
+  .quiz-wrap { max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .quiz-start-card { background: var(--card); border-radius: 20px; padding: 2.5rem; text-align: center; box-shadow: var(--shadow-lg); border: 1px solid var(--border); max-width: 600px; margin: 0 auto; }
+  .quiz-start-card h3 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--navy), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .quiz-start-card p { color: var(--muted); font-size: 0.9rem; margin-bottom: 2rem; line-height: 1.6; }
+  .quiz-options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .quiz-mode-btn { background: var(--bg); border: 1.5px solid var(--border); border-radius: 14px; padding: 1.25rem 1rem; cursor: pointer; font-size: 0.88rem; font-weight: 600; color: var(--text); transition: all 0.2s; text-align: center; }
+  .quiz-mode-btn:hover { border-color: var(--purple); background: #F3E8FF22; transform: translateY(-2px); }
+  .quiz-mode-btn.selected-mode { border-color: var(--purple); background: #F3E8FF; color: var(--purple); }
+  [data-theme="dark"] .quiz-mode-btn.selected-mode { background: #3B076433; }
+  .quiz-mode-btn .qm-icon { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+  .quiz-setting-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; color: var(--text); }
+  .quiz-setting-row:last-child { border-bottom: none; }
+  .toggle-switch { position: relative; width: 44px; height: 24px; cursor: pointer; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 999px; transition: 0.3s; }
+  .toggle-slider:before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.3s; }
+  input:checked + .toggle-slider { background: var(--purple); }
+  input:checked + .toggle-slider:before { transform: translateX(20px); }
+  .quiz-start-btn { background: linear-gradient(135deg, var(--navy), var(--purple)); color: #fff; border: none; border-radius: 14px; padding: 14px 40px; font-size: 1.05rem; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 1rem; }
+  .quiz-start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,58,237,0.35); }
+
+  /* IN-PROGRESS TEST */
+  .quiz-header { background: var(--card); border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .quiz-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+  .quiz-meta-left { font-size: 0.9rem; color: var(--muted); }
+  .quiz-score-pill { background: linear-gradient(135deg, var(--purple), var(--lavender)); color: #fff; padding: 4px 16px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; }
+  .quiz-progress { width: 100%; height: 8px; background: var(--border); border-radius: 999px; overflow: hidden; }
+  .quiz-progress-bar { height: 100%; background: linear-gradient(90deg, #1E3A8A, #7C3AED, #A855F7); border-radius: 999px; transition: width 0.5s ease; }
+  .quiz-card { background: var(--card); border-radius: 20px; padding: 2rem; box-shadow: var(--shadow-lg); border: 1.5px solid var(--border); }
+  .quiz-q-num { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--purple); margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between; }
+  .flag-btn { background: none; border: 1.5px solid var(--border); color: var(--muted); border-radius: 8px; padding: 4px 10px; font-size: 0.78rem; cursor: pointer; transition: all 0.2s; }
+  .flag-btn.flagged { border-color: var(--amber); color: var(--amber); background: #FEF3C733; }
+  .flag-btn:hover { border-color: var(--amber); color: var(--amber); }
+  .quiz-q-text { font-size: 1.05rem; font-weight: 600; color: var(--text); line-height: 1.6; margin-bottom: 1.5rem; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option { background: var(--bg); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px 18px; cursor: pointer; font-size: 0.9rem; color: var(--text); transition: all 0.2s; display: flex; align-items: center; gap: 12px; text-align: left; }
+  .quiz-option:hover:not(.locked) { border-color: var(--purple); background: #F3E8FF22; }
+  .quiz-option.selected { border-color: var(--purple); background: #F3E8FF44; }
+  .quiz-option.exam-correct { border-color: #10B981; background: #D1FAE5; color: #065F46; }
+  .quiz-option.exam-incorrect { border-color: #EF4444; background: #FEE2E2; color: #991B1B; }
+  .quiz-option.exam-reveal { border-color: #10B981; background: #D1FAE522; }
+  .quiz-option.locked { cursor: default; }
+  [data-theme="dark"] .quiz-option.exam-correct { background: #064E3B44; color: #6EE7B7; }
+  [data-theme="dark"] .quiz-option.exam-incorrect { background: #7F1D1D44; color: #FCA5A5; }
+  [data-theme="dark"] .quiz-option.exam-reveal { background: #064E3B22; }
+  .quiz-option .opt-letter { width: 30px; height: 30px; min-width: 30px; border-radius: 8px; background: var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.82rem; transition: all 0.2s; }
+  .quiz-option.exam-correct .opt-letter { background: #10B981; color: #fff; }
+  .quiz-option.exam-incorrect .opt-letter { background: #EF4444; color: #fff; }
+  .quiz-option.exam-reveal .opt-letter { background: #10B981; color: #fff; }
+  .quiz-feedback { margin-top: 1.25rem; padding: 1rem 1.25rem; border-radius: 14px; font-size: 0.9rem; line-height: 1.6; display: none; }
+  .quiz-feedback.show { display: block; background: #EFF6FF; border: 1px solid #3B82F6; color: #1D4ED8; }
+  [data-theme="dark"] .quiz-feedback.show { background: #1E3A8A22; color: #93C5FD; }
+  .quiz-action-row { display: flex; gap: 10px; margin-top: 1.25rem; flex-wrap: wrap; }
+  .quiz-next-btn { flex: 1; padding: 14px; background: linear-gradient(135deg, var(--navy), var(--purple)); color: #fff; border: none; border-radius: 14px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: none; min-width: 140px; }
+  .quiz-next-btn.visible { display: block; }
+  .quiz-next-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,58,237,0.35); }
+  .quiz-skip-btn { padding: 14px 20px; background: var(--bg); color: var(--muted); border: 1.5px solid var(--border); border-radius: 14px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .quiz-skip-btn:hover { border-color: var(--purple); color: var(--purple); }
+
+  /* TIMER */
+  .timer-display { font-size: 1.1rem; font-weight: 700; color: var(--purple); padding: 4px 14px; background: #F3E8FF; border-radius: 999px; }
+  .timer-display.warning { color: #EF4444; background: #FEE2E2; }
+
+  /* TRUE/FALSE QUIZ */
+  .tf-quiz-options { display: flex; gap: 12px; }
+  .tf-quiz-btn { flex: 1; padding: 14px; border: 1.5px solid var(--border); border-radius: 14px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.2s; background: var(--bg); color: var(--text); }
+  .tf-quiz-btn:hover:not(.locked) { border-color: var(--purple); }
+  .tf-quiz-btn.selected { border-color: var(--purple); background: #F3E8FF44; }
+  .tf-quiz-btn.exam-correct { border-color: #10B981; background: #D1FAE5; color: #065F46; }
+  .tf-quiz-btn.exam-incorrect { border-color: #EF4444; background: #FEE2E2; color: #991B1B; }
+  .tf-quiz-btn.locked { cursor: default; }
+
+  /* RESULTS */
+  .results-card { background: var(--card); border-radius: 22px; padding: 3rem 2rem; text-align: center; box-shadow: var(--shadow-lg); border: 1px solid var(--border); max-width: 600px; margin: 2rem auto; }
+  .results-score { font-size: 4rem; font-weight: 800; background: linear-gradient(135deg, var(--navy), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .results-label { font-size: 1rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .results-grade { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; }
+  .results-breakdown { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .rb-stat { background: var(--bg); border-radius: 12px; padding: 1rem; }
+  .rb-stat .val { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, var(--navy), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .rb-stat .lbl { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .results-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+  .res-btn { padding: 12px 28px; border-radius: 12px; border: none; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .res-btn-primary { background: linear-gradient(135deg, var(--purple), var(--lavender)); color: #fff; }
+  .res-btn-secondary { background: var(--bg); color: var(--text); border: 1.5px solid var(--border); }
+  .res-btn:hover { transform: translateY(-2px); }
+  .missed-review { text-align: left; margin-top: 1.5rem; }
+  .missed-review h4 { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .missed-item { background: var(--bg); border-radius: 12px; padding: 1rem; margin-bottom: 10px; }
+  .missed-item .mq-text { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .missed-item .mq-your { font-size: 0.8rem; color: #EF4444; margin-bottom: 4px; }
+  .missed-item .mq-correct { font-size: 0.8rem; color: var(--emerald); margin-bottom: 4px; }
+  .missed-item .mq-explain { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+  /* SCORE TRACKER */
+  .score-tracker { background: var(--card); border-radius: 18px; padding: 1.75rem; box-shadow: var(--shadow); border: 1px solid var(--border); max-width: 700px; margin: 0 auto; }
+  .st-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 1.5rem; }
+  .st-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .st-stat { background: var(--bg); border-radius: 14px; padding: 1.25rem; text-align: center; }
+  .st-stat .val { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, var(--navy), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .st-stat .lbl { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+  .st-history { list-style: none; padding: 0; }
+  .st-history li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .st-history li:last-child { border-bottom: none; }
+  .st-pill { padding: 3px 12px; border-radius: 999px; font-weight: 700; font-size: 0.8rem; }
+  .pill-a { background: #D1FAE5; color: #065F46; }
+  .pill-b { background: #DBEAFE; color: #1D4ED8; }
+  .pill-c { background: #FEF3C7; color: #92400E; }
+  .pill-d { background: #FEE2E2; color: #991B1B; }
+
+  /* CONFETTI */
+  .confetti-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+  .confetti-piece { position: absolute; width: 10px; height: 10px; border-radius: 2px; animation: confetti-fall linear forwards; }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* MISC */
+  .btn-purple { background: linear-gradient(135deg, var(--purple), var(--lavender)); color: #fff; border: none; border-radius: 12px; padding: 10px 24px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-purple:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,0.35); }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  .scroll-top { position: fixed; bottom: 24px; right: 24px; width: 44px; height: 44px; background: linear-gradient(135deg, var(--navy), var(--purple)); color: #fff; border: none; border-radius: 50%; cursor: pointer; font-size: 1.2rem; box-shadow: var(--shadow-lg); z-index: 50; display: none; transition: all 0.2s; }
+  .scroll-top:hover { transform: translateY(-3px); }
+  .scroll-top.visible { display: flex; align-items: center; justify-content: center; }
+
+  /* PRINT */
+  @media print {
+    .nav, .hero-btns, .back-btn, .quiz-wrap, .kc-options, .tf-options { display: none !important; }
+    body { background: #fff; color: #000; }
+    .content-wrap { max-width: 100%; }
+  }
+
+  /* SVG DIAGRAMS */
+  .diagram-svg { width: 100%; max-width: 600px; display: block; margin: 1rem auto; }
+  .diagram-wrap { background: var(--bg); border-radius: 14px; padding: 1rem; margin: 1rem 0; overflow-x: auto; }
+
+  /* TOPIC NAV BREADCRUMB */
+  .topic-progress-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tpn-item { font-size: 0.8rem; color: var(--muted); }
+  .tpn-item.active { color: var(--purple); font-weight: 600; }
+  .tpn-sep { color: var(--muted); font-size: 0.8rem; }
+  .lesson-number { display: inline-block; background: linear-gradient(135deg, var(--navy), var(--purple)); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-bottom: 10px; letter-spacing: 0.5px; }
+  .lesson-title { font-size: 1.4rem; font-weight: 800; color: var(--text); margin-bottom: 0.5rem; }
+  .lesson-subtitle { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">🦠 BIO 130 Micro</div>
+  <div class="nav-tools">
+    <button class="icon-btn" onclick="toggleDark()" title="Dark Mode" id="darkBtn">🌙</button>
+    <button class="icon-btn" onclick="printNotes()" title="Print Notes">🖨️</button>
+    <button class="icon-btn" onclick="showScreen('score')" title="Score Tracker">📊</button>
+  </div>
+</nav>
+
+<!-- CONFETTI -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- SCROLL TOP -->
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ===================== HOME ===================== -->
+<div id="screen-home" class="screen active">
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">🦠 BIO 130 · Microbiology</div>
+      <h1>Interactive <span>Learning Platform</span></h1>
+      <p class="hero-sub">Cell Walls & Antibiotics Unit</p>
+      <p class="hero-tagline">LEARN · CHECK UNDERSTANDING · MASTER · TEST YOURSELF</p>
+      <div class="hero-btns">
+        <button class="hero-btn" onclick="showScreen('content')">
+          <span class="btn-icon">📚</span>
+          <span>Content Review</span>
+          <span class="btn-label">Interactive Tutor Mode</span>
+        </button>
+        <button class="hero-btn" onclick="showScreen('practicetest')">
+          <span class="btn-icon">📝</span>
+          <span>Practice Test</span>
+          <span class="btn-label">Exam Simulation Mode</span>
+        </button>
+      </div>
+      <div class="mastery-overview" id="hero-mastery">
+        <h4>📊 Your Mastery Progress</h4>
+        <div id="mastery-bars-home"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CONTENT REVIEW ===================== -->
+<div id="screen-content" class="screen">
+  <div class="content-wrap">
+    <div class="section-header">
+      <button class="back-btn" onclick="showScreen('home')">← Home</button>
+      <h2>📚 Content Review</h2>
+    </div>
+
+    <!-- TOPIC LIST -->
+    <div id="topic-list">
+      <p style="color:var(--muted);font-size:0.88rem;margin-bottom:1.5rem;">Choose a topic to begin the interactive lesson. Complete all knowledge checks to earn mastery.</p>
+      <div class="topic-grid" id="topic-grid-container"></div>
+      <div id="mastery-complete-msg" style="display:none" class="mastery-complete">
+        <div style="font-size:3rem;margin-bottom:1rem">🎉</div>
+        <h2>You have mastered the BIO 130 Cell Walls & Antibiotics Unit!</h2>
+        <p style="margin-top:0.75rem">All concepts completed. Ready to ace the exam!</p>
+        <button class="quiz-start-btn" style="margin-top:1.5rem" onclick="showScreen('practicetest')">Take the Practice Test →</button>
+      </div>
+    </div>
+
+    <!-- TOPIC LESSONS (injected by JS) -->
+    <div id="lesson-container" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ===================== PRACTICE TEST ===================== -->
+<div id="screen-practicetest" class="screen">
+  <div class="quiz-wrap">
+    <div class="section-header">
+      <button class="back-btn" onclick="showScreen('home')">← Home</button>
+      <h2>📝 Practice Test</h2>
+    </div>
+
+    <!-- START SCREEN -->
+    <div id="test-start-screen">
+      <div class="quiz-start-card">
+        <h3>BIO 130 Exam Simulation</h3>
+        <p>Choose your test format below. Exam mode hides explanations until the end — Study mode shows them after each question.</p>
+        <div class="quiz-options-grid">
+          <div class="quiz-mode-btn selected-mode" onclick="selectTestMode('quick')" id="mode-quick">
+            <span class="qm-icon">⚡</span>Quick<br><small style="font-weight:400;color:var(--muted)">25 Q · MC</small>
+          </div>
+          <div class="quiz-mode-btn" onclick="selectTestMode('standard')" id="mode-standard">
+            <span class="qm-icon">📋</span>Standard<br><small style="font-weight:400;color:var(--muted)">60 Q · MC + T/F</small>
+          </div>
+          <div class="quiz-mode-btn" onclick="selectTestMode('full')" id="mode-full">
+            <span class="qm-icon">🏆</span>Full Exam<br><small style="font-weight:400;color:var(--muted)">100 Q + 20 T/F</small>
+          </div>
+        </div>
+        <div style="margin-bottom:1.5rem">
+          <div class="quiz-setting-row">
+            <span>⏱️ Timer</span>
+            <label class="toggle-switch"><input type="checkbox" id="timer-toggle"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="quiz-setting-row">
+            <span>📖 Study Mode (show explanations)</span>
+            <label class="toggle-switch"><input type="checkbox" id="study-mode-toggle"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="quiz-setting-row">
+            <span>🔀 Randomize Order</span>
+            <label class="toggle-switch"><input type="checkbox" id="random-toggle" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <button class="quiz-start-btn" onclick="beginPracticeTest()">Start Test →</button>
+      </div>
+    </div>
+
+    <!-- IN PROGRESS -->
+    <div id="test-in-progress" style="display:none">
+      <div class="quiz-header">
+        <div class="quiz-meta">
+          <span class="quiz-meta-left" id="test-q-count">Question 1 of 60</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="timer-display" id="timer-display" style="display:none">45:00</span>
+            <span class="quiz-score-pill" id="test-score-display">Score: 0/0</span>
+          </div>
+        </div>
+        <div class="quiz-progress"><div class="quiz-progress-bar" id="testProgressBar" style="width:0%"></div></div>
+      </div>
+      <div class="quiz-card">
+        <div class="quiz-q-num" id="test-type-badge">
+          <span id="test-q-num">Question 1</span>
+          <button class="flag-btn" id="flag-btn" onclick="toggleFlag()">🚩 Flag</button>
+        </div>
+        <div class="quiz-q-text" id="test-q-text">Loading...</div>
+        <div id="test-mc-wrap">
+          <div class="quiz-options" id="test-options"></div>
+        </div>
+        <div id="test-tf-wrap" style="display:none">
+          <div class="tf-quiz-options">
+            <button class="tf-quiz-btn" onclick="answerTF(true)">✅ True</button>
+            <button class="tf-quiz-btn" onclick="answerTF(false)">❌ False</button>
+          </div>
+        </div>
+        <div class="quiz-feedback" id="test-feedback"></div>
+        <div class="quiz-action-row">
+          <button class="quiz-skip-btn" id="test-skip-btn" onclick="skipQuestion()">Skip →</button>
+          <button class="quiz-next-btn" id="test-next-btn" onclick="nextTestQuestion()">Next →</button>
+        </div>
+      </div>
+      <div style="margin-top:1rem;text-align:center">
+        <button onclick="endTestEarly()" style="background:none;border:none;color:var(--muted);font-size:0.82rem;cursor:pointer;text-decoration:underline">End test & see results</button>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="test-results-screen" style="display:none">
+      <div class="results-card">
+        <div style="font-size:2rem;margin-bottom:0.5rem" id="results-emoji">🏆</div>
+        <div class="results-score" id="final-score">0%</div>
+        <div class="results-label" id="final-label">0 correct out of 0</div>
+        <div class="results-grade" id="final-grade"></div>
+        <div class="results-breakdown">
+          <div class="rb-stat"><div class="val" id="rb-correct">0</div><div class="lbl">Correct</div></div>
+          <div class="rb-stat"><div class="val" id="rb-incorrect">0</div><div class="lbl">Incorrect</div></div>
+          <div class="rb-stat"><div class="val" id="rb-flagged">0</div><div class="lbl">Flagged</div></div>
+        </div>
+        <div class="results-btns">
+          <button class="res-btn res-btn-primary" onclick="beginPracticeTest()">Retake Test</button>
+          <button class="res-btn res-btn-secondary" onclick="showScreen('home')">← Home</button>
+        </div>
+        <div class="missed-review" id="missed-review-section" style="display:none">
+          <h4>❌ Review Missed Questions</h4>
+          <div id="missed-items"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCORE TRACKER -->
+<div id="screen-score" class="screen">
+  <div class="content-wrap">
+    <div class="section-header">
+      <button class="back-btn" onclick="showScreen('home')">← Home</button>
+      <h2>📊 Score Tracker</h2>
+    </div>
+    <div class="score-tracker">
+      <div class="st-title">Your Practice Test History</div>
+      <div class="st-stat-row">
+        <div class="st-stat"><div class="val" id="st-total">0</div><div class="lbl">Tests Taken</div></div>
+        <div class="st-stat"><div class="val" id="st-avg">—</div><div class="lbl">Avg Score</div></div>
+        <div class="st-stat"><div class="val" id="st-best">—</div><div class="lbl">Best Score</div></div>
+      </div>
+      <ul class="st-history" id="st-history"></ul>
+      <div id="st-empty" style="text-align:center;padding:2rem;color:var(--muted);font-size:0.9rem">No tests taken yet. Take a practice test to see your scores here!</div>
+    </div>
+    <div style="margin-top:2rem;background:var(--card);border-radius:18px;padding:1.5rem;border:1px solid var(--border)">
+      <h3 style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:1rem">📊 Concept Mastery</h3>
+      <div id="mastery-bars-score"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== DATA =====================
+
+const TOPICS = [
+  { id: 'cellwall', icon: '🧱', title: 'Bacterial Cell Walls', desc: 'Structure, function, peptidoglycan, Gram-positive vs negative.', badge: 'badge-high', badgeTxt: '⭐ High Yield' },
+  { id: 'gramstain', icon: '🔬', title: 'Gram Stain Procedure', desc: '4-step procedure, controls, interpretation, morphology.', badge: 'badge-high', badgeTxt: '⭐ High Yield' },
+  { id: 'acidfast', icon: '🧫', title: 'Acid-Fast Bacteria', desc: 'Mycolic acid, Mycobacterium, stain procedure, clinical use.', badge: 'badge-clinical', badgeTxt: '🏥 Clinical' },
+  { id: 'lps', icon: '🔥', title: 'LPS & Endotoxin', desc: 'Lipid A, O antigen, fever cascade, endotoxin vs exotoxin.', badge: 'badge-high', badgeTxt: '⭐ High Yield' },
+  { id: 'antibiotics', icon: '💊', title: 'Cell Walls & Antibiotics', desc: 'Penicillin, PBP, beta-lactamase, resistance mechanisms.', badge: 'badge-pharm', badgeTxt: '💊 Pharm' },
+  { id: 'mycoplasma', icon: '🫁', title: 'Mycoplasma', desc: 'No cell wall, walking pneumonia, pathogenesis, treatment.', badge: 'badge-clinical', badgeTxt: '🏥 Clinical' },
+  { id: 'tb', icon: '🫀', title: 'Tuberculosis', desc: 'M. tuberculosis, tubercles, caseous necrosis, RIPE drugs.', badge: 'badge-clinical', badgeTxt: '🏥 Clinical' },
+  { id: 'culture', icon: '🧪', title: 'Bacterial Culture & Growth', desc: 'Media types, binary fission, colony morphology, ID methods.', badge: 'badge-high', badgeTxt: '⭐ High Yield' },
+];
+
+// Each topic has: questions[] each with type ('mc','tf','fitb','match'), and other data
+const LESSONS = {
+
+cellwall: {
+  title: 'Bacterial Cell Walls',
+  subtitle: 'Structure, function & comparison of Gram-positive vs Gram-negative',
+  content: `
+  <div class="lesson-number">Lesson 1 of 8</div>
+  <div class="lesson-title">🧱 Bacterial Cell Walls</div>
+  <div class="lesson-subtitle">Why cell walls matter — and how they differ</div>
+  <div class="content-section">
+    <h3>What Is a Cell Wall and Why Does It Matter?</h3>
+    <p>The bacterial cell wall is a rigid structure surrounding the plasma membrane. It provides shape, structural support, and protection from osmotic pressure. But its real clinical importance lies in what it tells us about:</p>
+    <ul>
+      <li><strong>How to classify bacteria</strong> — Gram-positive vs Gram-negative</li>
+      <li><strong>Which antibiotics will work</strong> — penicillin targets cell wall synthesis</li>
+      <li><strong>What staining results to expect</strong> — purple vs pink</li>
+      <li><strong>Whether fever can be triggered</strong> — only Gram-negative bacteria have LPS</li>
+    </ul>
+    <div class="info-box ib-definition">
+      <div class="ib-label">🔵 Definition</div>
+      <div class="ib-content"><strong>Peptidoglycan</strong> — A polymer unique to bacteria made of alternating NAM and NAG sugar units, cross-linked by short peptide chains. Think of it as a mesh cage around the bacterium. Humans have NO peptidoglycan — which makes it a perfect antibiotic target.</div>
+    </div>
+    <h4>Gram-Positive Cell Wall</h4>
+    <ul>
+      <li><strong>Thick peptidoglycan</strong> — multiple layers stacked on top of each other</li>
+      <li><strong>No outer membrane</strong> — just plasma membrane + thick peptidoglycan wall</li>
+      <li><strong>Stains PURPLE</strong> — thick wall traps crystal violet during Gram staining</li>
+      <li><strong>More sensitive to penicillin</strong> — penicillin can directly access the cell wall</li>
+    </ul>
+    <h4>Gram-Negative Cell Wall</h4>
+    <ul>
+      <li><strong>Thin peptidoglycan</strong> — only a single layer</li>
+      <li><strong>Outer membrane present</strong> — a second lipid bilayer outside the peptidoglycan</li>
+      <li><strong>Contains LPS</strong> — Lipopolysaccharide on outer membrane → endotoxin → fever</li>
+      <li><strong>Stains PINK</strong> — thin wall cannot trap crystal violet</li>
+      <li><strong>Less sensitive to penicillin</strong> — outer membrane acts as a barrier</li>
+    </ul>
+    <table class="compare-table" style="margin-top:1rem">
+      <thead><tr><th>Feature</th><th>Gram-Positive</th><th>Gram-Negative</th></tr></thead>
+      <tbody>
+        <tr><td>Peptidoglycan</td><td>Thick (multiple layers)</td><td>Thin (single layer)</td></tr>
+        <tr><td>Outer membrane</td><td>❌ Absent</td><td>✅ Present</td></tr>
+        <tr><td>LPS</td><td>❌ Absent</td><td>✅ Present</td></tr>
+        <tr><td>Gram stain</td><td><span class="purple-pill">Purple</span></td><td><span class="pink-pill">Pink</span></td></tr>
+        <tr><td>Penicillin sensitivity</td><td>More sensitive</td><td>Less sensitive</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box ib-high-yield" style="margin-top:1rem">
+      <div class="ib-label">🟣 High Yield — Say This Out Loud</div>
+      <div class="ib-content">
+        <strong>Gram-positive = THICK peptidoglycan = PURPLE stain</strong><br>
+        <strong>Gram-negative = THIN peptidoglycan + LPS + outer membrane = PINK stain</strong>
+      </div>
+    </div>
+    <div class="diagram-wrap">
+      <svg class="diagram-svg" viewBox="0 0 580 200" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="580" height="200" fill="none"/>
+        <!-- Gram Positive -->
+        <text x="130" y="20" text-anchor="middle" font-weight="bold" font-size="13" fill="#7C3AED">Gram-Positive</text>
+        <rect x="60" y="100" width="140" height="40" rx="8" fill="#C4B5FD" stroke="#7C3AED" stroke-width="2"/>
+        <text x="130" y="125" text-anchor="middle" font-size="11" fill="#1E1B4B">Plasma Membrane</text>
+        <rect x="50" y="60" width="160" height="38" rx="4" fill="#7C3AED" opacity="0.85"/>
+        <text x="130" y="83" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Thick Peptidoglycan</text>
+        <text x="130" y="95" text-anchor="middle" font-size="9" fill="white">(multiple layers)</text>
+        <text x="220" y="78" font-size="10" fill="#7C3AED">← Crystal violet</text>
+        <text x="220" y="90" font-size="10" fill="#7C3AED">   trapped here</text>
+        <!-- Gram Negative -->
+        <text x="430" y="20" text-anchor="middle" font-weight="bold" font-size="13" fill="#BE185D">Gram-Negative</text>
+        <rect x="360" y="100" width="140" height="40" rx="8" fill="#FBCFE8" stroke="#BE185D" stroke-width="2"/>
+        <text x="430" y="125" text-anchor="middle" font-size="11" fill="#1E1B4B">Plasma Membrane</text>
+        <rect x="355" y="74" width="150" height="24" rx="4" fill="#BE185D" opacity="0.5"/>
+        <text x="430" y="90" text-anchor="middle" font-size="10" fill="white">Thin PG (1 layer)</text>
+        <rect x="350" y="40" width="160" height="30" rx="4" fill="#BE185D" opacity="0.85"/>
+        <text x="430" y="59" text-anchor="middle" font-size="11" fill="white" font-weight="bold">Outer Membrane + LPS</text>
+        <text x="310" y="58" font-size="10" fill="#BE185D" text-anchor="end">Crystal violet</text>
+        <text x="310" y="70" font-size="10" fill="#BE185D" text-anchor="end">washes out →</text>
+        <!-- Labels -->
+        <text x="130" y="170" text-anchor="middle" font-size="12" fill="#7C3AED" font-weight="bold">PURPLE after stain</text>
+        <text x="430" y="170" text-anchor="middle" font-size="12" fill="#BE185D" font-weight="bold">PINK after stain</text>
+      </svg>
+    </div>
+    <div class="info-box ib-memory">
+      <div class="ib-label">🧠 Memory Trick</div>
+      <div class="ib-content"><strong>"Gram-Positive is PURPLE and PLUMP"</strong> — both P's. The wall is PLUMP (thick) → stays PURPLE. Gram-negative is NARROW (thin wall) → gets NAKED (loses stain) → turns PINK from counterstain.</div>
+    </div>
+  </div>`,
+  checks: [
+    { type: 'mc', q: 'Why do Gram-positive bacteria remain purple after Gram staining?', opts: ['They have mycolic acid in their wall','They have a thick peptidoglycan layer that traps crystal violet','They contain Lipid A in the outer membrane','They lack peptidoglycan entirely'], correct: 1, explain: '✅ The thick, multilayer peptidoglycan traps the crystal violet–iodine complex during the decolorization step. Even when acetone-alcohol is applied, the dye cannot escape the dense wall.' },
+    { type: 'tf', q: 'Gram-negative bacteria have a thicker peptidoglycan layer than Gram-positive bacteria.', answer: false, explain: '❌ This is reversed. Gram-POSITIVE bacteria have the THICK peptidoglycan. Gram-NEGATIVE bacteria have a thin, single-layer peptidoglycan but compensate with an outer membrane containing LPS.' },
+    { type: 'mc', q: 'Which structure is UNIQUE to Gram-negative bacteria and is responsible for endotoxin activity?', opts: ['Thick peptidoglycan','Teichoic acid','Lipopolysaccharide (LPS) outer membrane','Mycolic acid coat'], correct: 2, explain: '✅ LPS (Lipopolysaccharide) is found exclusively in the outer membrane of Gram-negative bacteria. The toxic component, Lipid A, triggers the fever cascade when released.' },
+    { type: 'fitb', q: 'The ______ layer traps crystal violet in Gram-positive bacteria, causing them to appear purple after the Gram stain.', answer: 'peptidoglycan', explain: 'Peptidoglycan is the thick, multi-layered mesh unique to bacteria. In Gram-positive organisms, its density prevents the decolorizer from removing the crystal violet dye.' },
+    { type: 'match', pairs: [
+      { term: 'Thick peptidoglycan', def: 'Gram-positive bacteria' },
+      { term: 'LPS / Outer membrane', def: 'Gram-negative bacteria' },
+      { term: 'Purple stain result', def: 'Gram-positive bacteria' },
+      { term: 'Pink stain result', def: 'Gram-negative bacteria' },
+    ], explain: 'Gram-positives have thick PG → purple. Gram-negatives have thin PG + outer membrane with LPS → pink.' },
+  ],
+  scenario: { label: '🏥 Clinical Scenario', q: 'A lab report shows a patient\'s wound culture is "Gram-positive cocci in clusters." Should the attending physician be more or less worried about fever caused by endotoxin than if the culture showed Gram-negative rods? Explain.', answer: 'LESS worried about endotoxin-induced fever. Gram-POSITIVE bacteria lack LPS and an outer membrane, so they cannot release Lipid A (endotoxin). Endotoxin fever requires Gram-negative bacteria. Gram-positive infections can still cause fever via exotoxins or the general immune response, but not through the Lipid A → IL-1 → prostaglandin pathway.' },
+  professor: { q: 'A patient develops a high fever minutes after receiving an intravenous antibiotic that rapidly kills Gram-negative bacteria. Why might killing the bacteria actually WORSEN the fever initially?', answer: 'When Gram-negative bacteria are killed (by antibiotics, immune cells, or other means), their outer membranes rupture and release massive amounts of LPS/Lipid A into the bloodstream. This sudden flood of endotoxin triggers a massive IL-1/prostaglandin response → high fever spike. This is sometimes called the Jarisch-Herxheimer reaction.' },
+  footer: { summary: 'Gram-positive = thick PG, no outer membrane, purple, more penicillin-sensitive. Gram-negative = thin PG, outer membrane with LPS, pink, less penicillin-sensitive.', memory: '"Gram-Positive is PURPLE and PLUMP" — thick wall traps the purple stain.', exam: 'The single most tested fact: Gram-positive = PURPLE, Gram-negative = PINK. Know WHY (thickness of peptidoglycan determines whether crystal violet is retained).', mistake: 'Students confuse which stains purple. Remember: it is the THICK wall that TRAPS the stain, so the THICKER Gram-POSITIVE stays PURPLE.' }
+},
+
+gramstain: {
+  title: 'Gram Stain Procedure',
+  subtitle: 'The 4-step differential staining technique',
+  content: `
+  <div class="lesson-number">Lesson 2 of 8</div>
+  <div class="lesson-title">🔬 Gram Stain</div>
+  <div class="lesson-subtitle">A differential stain that separates bacteria by cell wall structure</div>
+  <div class="content-section">
+    <h3>Why the Gram Stain?</h3>
+    <p>The Gram stain is the first identification step in every clinical microbiology lab. In about 5 minutes it gives you two critical pieces of information at once: the <strong>staining reaction</strong> (positive or negative) AND the <strong>cell morphology</strong> (shape). Together these narrow down the bacterial suspects dramatically.</p>
+    <h4>The 4 Steps — In Order</h4>
+    <div class="step-flow">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body"><strong>Crystal Violet — Primary Stain</strong><span>All bacteria turn purple. This stain enters every cell regardless of cell wall type.</span></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-body"><strong>Gram's Iodine — Mordant</strong><span>Iodine combines with crystal violet to form a large CV-I complex inside every cell. The complex is too big to escape easily.</span></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-body"><strong>Acetone-Alcohol — Decolorizer (CRITICAL STEP)</strong><span>This is the key step. In Gram-positive cells, the thick peptidoglycan dehydrates and traps the CV-I complex. In Gram-negative cells, the lipid-rich outer membrane dissolves and the CV-I complex washes out, leaving them colorless.</span></div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-body"><strong>Safranin — Counterstain</strong><span>Pink dye stains the now-colorless Gram-negative cells pink/red. Gram-positive cells, already purple, may take up some safranin but appear purple overall.</span></div></div>
+    </div>
+    <div class="info-box ib-high-yield">
+      <div class="ib-label">🟣 High Yield — Controls</div>
+      <div class="ib-content">
+        <strong>Positive control:</strong> Staphylococcus epidermidis (Gram+ cocci — should appear purple)<br>
+        <strong>Negative control:</strong> Escherichia coli (Gram− bacilli — should appear pink)
+      </div>
+    </div>
+    <div class="info-box ib-mistake">
+      <div class="ib-label">🔴 Common Mistake</div>
+      <div class="ib-content"><strong>Over-decolorizing</strong> can make Gram-positive bacteria appear Gram-negative (too much dye washed out). <strong>Under-decolorizing</strong> can make Gram-negative bacteria appear Gram-positive (not enough dye removed). The acetone-alcohol step is the most technique-sensitive.</div>
+    </div>
+    <h4>Cell Morphology Terms</h4>
+    <ul>
+      <li><strong>Cocci</strong> — spherical/round cells</li>
+      <li><strong>Bacilli</strong> — rod-shaped cells</li>
+      <li><strong>Diplococci</strong> — pairs of cocci (e.g., Neisseria)</li>
+      <li><strong>Streptococci</strong> — chains of cocci (divide in one plane, stay attached)</li>
+      <li><strong>Staphylococci</strong> — irregular clusters of cocci (divide in multiple planes)</li>
+    </ul>
+    <div class="info-box ib-memory">
+      <div class="ib-label">🧠 Memory Trick</div>
+      <div class="ib-content"><strong>"Can I Drink Shots?"</strong> = Crystal violet → Iodine → Decolorizer → Safranin. The order never changes.</div>
+    </div>
+  </div>`,
+  checks: [
+    { type: 'mc', q: 'Which step of the Gram stain is considered the most critical and technique-dependent?', opts: ['Crystal violet application','Gram\'s iodine (mordant)','Acetone-alcohol decolorization','Safranin counterstain'], correct: 2, explain: '✅ The decolorization step is the most critical. Over-decolorizing removes crystal violet from Gram-positive cells (making them falsely appear Gram-negative). Under-decolorizing leaves crystal violet in Gram-negative cells (falsely appearing Gram-positive).' },
+    { type: 'mc', q: 'What is the role of iodine (Gram\'s iodine) in the Gram stain procedure?', opts: ['It stains only Gram-positive cells purple','It acts as a mordant, forming a large CV-iodine complex that is harder to remove','It decolorizes Gram-negative bacteria','It serves as the counterstain to make Gram-negative cells visible'], correct: 1, explain: '✅ Iodine acts as a mordant — it bonds with crystal violet to form a larger crystal violet-iodine (CV-I) complex. This larger complex is more difficult to remove during decolorization, especially from thick-walled Gram-positive cells.' },
+    { type: 'tf', q: 'In the Gram stain procedure, safranin is applied BEFORE the decolorizer.', answer: false, explain: '❌ The order is: (1) Crystal Violet → (2) Iodine → (3) Decolorizer → (4) Safranin. Safranin is always LAST — it restains the now-colorless Gram-negative cells pink after the decolorizer has washed out their crystal violet.' },
+    { type: 'mc', q: 'A Gram stain shows "Gram-positive cocci in chains." This morphology is most consistent with:', opts: ['Staphylococcus (clusters)','Streptococcus (chains)','Bacillus (rods)','Neisseria (diplococci)'], correct: 1, explain: '✅ Streptococci divide in a single plane and remain attached, forming characteristic chains. Staphylococci divide in multiple planes forming irregular clusters. Both are Gram-positive cocci — the arrangement tells them apart.' },
+    { type: 'fitb', q: 'After step 3 (decolorization), Gram-negative bacteria are ______ in color and require safranin to become visible.', answer: 'colorless', explain: 'After the acetone-alcohol removes the crystal violet-iodine complex from Gram-negative cells (because their outer membrane dissolves), those cells are temporarily colorless/transparent. The safranin counterstain then makes them appear pink.' },
+  ],
+  scenario: { label: '🏥 Clinical Scenario', q: 'A sputum sample is Gram stained. The technician reports "Gram-positive diplococci." Which organism is most consistent with this finding, and why is the diplococci arrangement clinically significant?', answer: 'Gram-positive diplococci strongly suggests Streptococcus pneumoniae — a major cause of bacterial pneumonia, meningitis, and ear infections. The diplococci arrangement (pairs of cocci) is characteristic. Combined with Gram-positive staining, this significantly narrows the differential and guides antibiotic selection (beta-lactams are typically first-line).' },
+  professor: { q: 'You perform a Gram stain on a pure culture of known Gram-positive bacteria, but most cells appear pink. What went wrong, and what step needs to be adjusted?', answer: 'The most likely error is OVER-DECOLORIZATION. Too much acetone-alcohol was applied or it was left on too long, stripping the crystal violet from even Gram-positive cells — making them appear falsely Gram-negative (pink). Solution: Reduce decolorization time. This is why controls (Gram-positive S. epidermidis) are run alongside every stain to verify technique.' },
+  footer: { summary: '4 steps: Crystal Violet → Iodine (mordant) → Decolorizer → Safranin. Gram+ = purple (thick PG traps CV). Gram− = pink (outer membrane dissolves, CV washes out, safranin restains).', memory: '"Can I Drink Shots?" = Crystal violet, Iodine, Decolorizer, Safranin.', exam: 'Expect questions about what each step does, what happens if decolorization is incorrect, and identifying organisms from Gram stain descriptions.', mistake: 'Over-decolorizing makes Gram-positives look Gram-negative. Under-decolorizing makes Gram-negatives look Gram-positive. This is why controls are essential.' }
+},
+
+acidfast: {
+  title: 'Acid-Fast Bacteria',
+  subtitle: 'Mycobacterium, mycolic acid, and the Ziehl-Neelsen stain',
+  content: `
+  <div class="lesson-number">Lesson 3 of 8</div>
+  <div class="lesson-title">🧫 Acid-Fast Bacteria</div>
+  <div class="lesson-subtitle">Why Mycobacterium resists standard staining</div>
+  <div class="content-section">
+    <h3>What Makes a Bacterium Acid-Fast?</h3>
+    <p>Mycobacterium species (like M. tuberculosis and M. leprae) have a unique cell wall containing <strong>mycolic acid</strong> — a long-chain waxy lipid. This waxy coat makes the bacteria:</p>
+    <ul>
+      <li><strong>Resistant to the standard Gram stain</strong> — aqueous dyes cannot penetrate the waxy wall</li>
+      <li><strong>Resistant to decolorization with acid-alcohol</strong> — once the dye gets in (with heat), it stays</li>
+      <li><strong>Slow-growing</strong> — generation time of 24 hours vs 20–30 minutes for most bacteria</li>
+      <li><strong>Resistant to many antibiotics</strong> — the waxy coat blocks drug penetration</li>
+    </ul>
+    <div class="info-box ib-definition">
+      <div class="ib-label">🔵 Definition</div>
+      <div class="ib-content"><strong>Mycolic acid</strong> — An extremely long-chain fatty acid (waxy lipid) unique to Mycobacterium and a few related genera. It intercalates into the cell wall, making it nearly impermeable to aqueous stains and many drugs.</div>
+    </div>
+    <h4>The Acid-Fast Stain (Ziehl-Neelsen) — 3 Steps</h4>
+    <div class="step-flow">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body"><strong>Carbol Fuchsin + Heat (Primary Stain)</strong><span>Heat is essential — it drives the pink carbol fuchsin dye through the waxy mycolic acid wall. ALL cells become pink/red at this stage.</span></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-body"><strong>Acid-Alcohol (Decolorizer)</strong><span>Acid-alcohol removes the carbol fuchsin from NON-acid-fast cells (their walls have no mycolic acid). Mycobacteria RETAIN the pink stain because mycolic acid prevents the acid-alcohol from penetrating. Non-acid-fast cells become colorless.</span></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-body"><strong>Crystal Violet (Counterstain)</strong><span>Purple stain applied to make the now-colorless non-acid-fast bacteria visible. Result: non-acid-fast = PURPLE, acid-fast = PINK.</span></div></div>
+    </div>
+    <div class="info-box ib-high-yield">
+      <div class="ib-label">🟣 High Yield — Final Colors</div>
+      <div class="ib-content">
+        <strong>Acid-fast (Mycobacterium) = PINK/RED rods</strong><br>
+        <strong>Non-acid-fast (all others) = PURPLE</strong><br><br>
+        Controls: Positive = M. smegmatis | Negative = S. epidermidis
+      </div>
+    </div>
+    <div class="info-box ib-clinical">
+      <div class="ib-label">🟢 Clinical Importance</div>
+      <div class="ib-content">The acid-fast stain is performed on sputum when TB is suspected. M. tuberculosis takes 20+ days to grow in culture (due to its 24-hour generation time), so the rapid acid-fast stain result is critical for early diagnosis and treatment initiation.</div>
+    </div>
+    <div class="info-box ib-memory">
+      <div class="ib-label">🧠 Memory Trick</div>
+      <div class="ib-content"><strong>"Acid-fast bacteria are HOT PINK"</strong> — you need HEAT to force the pink dye in, and they stay PINK after decolorization. Everything else turns PURPLE (the counterstain color).</div>
+    </div>
+  </div>`,
+  checks: [
+    { type: 'mc', q: 'What property of Mycobacterium allows it to resist decolorization with acid-alcohol?', opts: ['A thick peptidoglycan layer similar to Gram-positives','An outer membrane containing LPS','Mycolic acid — a waxy lipid in the cell wall','Production of beta-lactamase enzymes'], correct: 2, explain: '✅ Mycolic acid is the unique waxy lipid in Mycobacterium\'s cell wall. Once carbol fuchsin penetrates (with heat), the mycolic acid prevents acid-alcohol from removing it. No other common bacteria have this property.' },
+    { type: 'mc', q: 'In an acid-fast stain, you see pink rods on a purple background. This means:', opts: ['All bacteria are Gram-positive','The stain failed — results should all be one color','The pink rods are acid-fast (Mycobacterium); the purple are non-acid-fast organisms','The purple organisms are acid-fast; pink are non-acid-fast'], correct: 2, explain: '✅ Classic acid-fast result: acid-fast bacteria (Mycobacterium) retain carbol fuchsin → appear PINK. Non-acid-fast bacteria lose the pink stain and take up the crystal violet counterstain → appear PURPLE. Pink rods = Mycobacterium.' },
+    { type: 'tf', q: 'Heat is required in the acid-fast stain because it helps drive the carbol fuchsin dye through the waxy mycolic acid cell wall.', answer: true, explain: '✅ Correct. The waxy mycolic acid layer is nearly impermeable to aqueous dyes at room temperature. Heat (steam or hot plate) is essential to force carbol fuchsin through the lipid barrier. Without heat, the primary stain would not penetrate.' },
+    { type: 'mc', q: 'Why would an acid-fast stain be preferred over a Gram stain for diagnosing tuberculosis?', opts: ['The Gram stain is less accurate for all respiratory infections','M. tuberculosis has mycolic acid that prevents standard staining and requires the specific acid-fast procedure','The Gram stain cannot be performed on sputum samples','M. tuberculosis is Gram-negative and thus not visible with Gram stain'], correct: 1, explain: '✅ M. tuberculosis has a waxy mycolic acid coat that prevents the standard Gram stain from penetrating properly. The bacteria would appear unstained or give unreliable results. The acid-fast stain is specifically designed for mycolic acid-containing organisms.' },
+    { type: 'fitb', q: 'The waxy ______ layer in Mycobacterium prevents acid-alcohol from removing carbol fuchsin, making these bacteria "acid-fast."', answer: 'mycolic acid', explain: 'Mycolic acid is the defining structural feature of acid-fast bacteria. It is a very long-chain fatty acid that creates a nearly impermeable waxy layer around the cell, responsible for the characteristic staining behavior and drug resistance.' },
+  ],
+  scenario: { label: '🏥 Clinical Scenario', q: 'A 35-year-old immigrant presents with a 3-month history of productive cough, night sweats, weight loss, and hemoptysis (blood in sputum). Chest X-ray shows upper lobe cavitary lesions. Which stain should be ordered first on the sputum sample, and what would a positive result look like?', answer: 'An ACID-FAST STAIN (Ziehl-Neelsen) should be ordered immediately. A positive result would show PINK/RED rods on a PURPLE background. This is highly suspicious for M. tuberculosis. Culture confirmation takes 20+ days (due to 24-hr generation time), so the acid-fast stain is critical for rapid presumptive diagnosis and initiation of isolation precautions and RIPE therapy.' },
+  professor: { q: 'A patient has a pulmonary infection suspected to be mycobacterial. You order both a Gram stain and an acid-fast stain on the same sputum sample. The Gram stain shows no organisms. The acid-fast stain shows pink rods. How do you explain this discrepancy?', answer: 'This is EXPECTED, not an error. Mycobacterium\'s waxy mycolic acid coat prevents standard Gram staining dyes from penetrating reliably. The organism will not take up crystal violet well, so it appears as "no organisms" or "ghost cells" on Gram stain. The acid-fast stain uses heat to force carbol fuchsin through the waxy wall. This is precisely why the acid-fast stain was developed — the Gram stain is inadequate for Mycobacterium.' },
+  footer: { summary: 'Acid-fast = Mycobacterium with waxy mycolic acid wall. Stain: Carbol fuchsin + heat → acid-alcohol decolorizer → crystal violet counterstain. Result: acid-fast = PINK, non-acid-fast = PURPLE.', memory: '"Acid-fast bacteria are HOT PINK" — heat forces dye in, mycolic acid keeps it there.', exam: 'Know the stain steps, the final colors, and WHY mycobacteria resist acid-alcohol. Also know that M. tuberculosis takes 20+ days to culture.', mistake: 'Students often say acid-fast bacteria are "Gram-positive." They are NEITHER — mycolic acid prevents reliable Gram staining. Never say Mycobacterium is Gram-positive.' }
+},
+
+lps: {
+  title: 'LPS & Endotoxin',
+  subtitle: 'The fever-inducing lipopolysaccharide of Gram-negative bacteria',
+  content: `
+  <div class="lesson-number">Lesson 4 of 8</div>
+  <div class="lesson-title">🔥 LPS & Endotoxin</div>
+  <div class="lesson-subtitle">The Gram-negative outer membrane and the fever cascade</div>
+  <div class="content-section">
+    <h3>What Is LPS and Where Does It Live?</h3>
+    <p>Lipopolysaccharide (LPS) is a large molecule found ONLY in the outer membrane of Gram-negative bacteria. It has three distinct regions:</p>
+    <ul>
+      <li><strong>O Antigen</strong> — The outermost polysaccharide chain; used to identify different bacterial strains (like fingerprinting)</li>
+      <li><strong>Core Polysaccharide</strong> — Structural connecting region between O antigen and Lipid A</li>
+      <li><strong>Lipid A</strong> — The innermost, lipid portion anchored in the outer membrane. <em>This is the toxic component — this IS the endotoxin.</em></li>
+    </ul>
+    <div class="info-box ib-definition">
+      <div class="ib-label">🔵 Endotoxin vs. Exotoxin</div>
+      <div class="ib-content">
+        <strong>Endotoxin (Lipid A):</strong> Part of the bacterial cell structure. Released when bacteria die and lyse. NOT secreted by living bacteria. Triggers the host immune fever response.<br><br>
+        <strong>Exotoxin:</strong> A protein actively SECRETED by living bacteria. Examples: botulinum toxin, cholera toxin, tetanus toxin.
+      </div>
+    </div>
+    <h4>The Fever Cascade — Step by Step</h4>
+    <div class="step-flow">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body"><strong>Gram-negative bacteria are phagocytosed or killed</strong><span>By immune cells, antibiotics, or complement. Bacteria lyse.</span></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-body"><strong>Lipid A is released</strong><span>From the destroyed outer membrane into the bloodstream/tissue</span></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-body"><strong>Macrophages detect Lipid A</strong><span>TLR-4 receptors on macrophages recognize Lipid A as "danger signal"</span></div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-body"><strong>Macrophage secretes Interleukin-1 (IL-1)</strong><span>A cytokine "alarm signal" sent through the bloodstream to the brain</span></div></div>
+      <div class="step-item"><div class="step-num">5</div><div class="step-body"><strong>Hypothalamus produces Prostaglandins</strong><span>Prostaglandins raise the hypothalamic temperature set-point</span></div></div>
+      <div class="step-item"><div class="step-num">6</div><div class="step-body"><strong>FEVER</strong><span>Body temperature rises. NSAIDs (like aspirin) block prostaglandin synthesis → reduce fever.</span></div></div>
+    </div>
+    <div class="info-box ib-high-yield">
+      <div class="ib-label">🟣 High Yield — Memorize This Chain</div>
+      <div class="ib-content" style="font-size:1rem;font-weight:700">LPS → <span style="color:#EF4444">Lipid A</span> → Macrophage → <span style="color:#F59E0B">IL-1</span> → Hypothalamus → <span style="color:#F97316">Prostaglandin</span> → 🌡️ FEVER</div>
+    </div>
+    <div class="info-box ib-memory">
+      <div class="ib-label">🧠 Memory Trick</div>
+      <div class="ib-content"><strong>"Lipid A Is Inflaming Patients Ferociously"</strong> = Lipid A → IL-1 → Prostaglandin → Fever. Each first letter: L-A-I-P-F</div>
+    </div>
+  </div>`,
+  checks: [
+    { type: 'mc', q: 'Which component of LPS is directly responsible for triggering the fever response?', opts: ['O Antigen','Core Polysaccharide','Lipid A','Teichoic acid'], correct: 2, explain: '✅ Lipid A is the innermost lipid component of LPS and is the toxic endotoxin. When Gram-negative bacteria die and release Lipid A, macrophages recognize it and initiate the IL-1 → prostaglandin → fever cascade.' },
+    { type: 'mc', q: 'A patient develops a high fever after Gram-negative bacterial infection. Tracing the fever pathway, what molecule does the hypothalamus produce to raise body temperature?', opts: ['Lipid A','Interleukin-1 (IL-1)','Prostaglandin','Tumor Necrosis Factor'], correct: 2, explain: '✅ The pathway is: Lipid A → Macrophage → IL-1 (systemic cytokine) → Hypothalamus → Prostaglandin synthesis → raised temperature set-point → FEVER. NSAIDs block prostaglandin synthesis, which is how they reduce fever.' },
+    { type: 'tf', q: 'Endotoxin (Lipid A) is actively secreted by living Gram-negative bacteria.', answer: false, explain: '❌ Endotoxin is NOT secreted. It is a structural component embedded in the outer membrane. Lipid A is only released when Gram-negative bacteria die and lyse (break apart). Compare to exotoxins, which ARE actively secreted by living bacteria.' },
+    { type: 'mc', q: 'How does aspirin (ibuprofen, NSAIDs) reduce fever caused by bacterial LPS?', opts: ['They destroy Lipid A directly','They block macrophage IL-1 secretion','They inhibit prostaglandin synthesis in the hypothalamus','They kill Gram-negative bacteria'], correct: 2, explain: '✅ NSAIDs work by inhibiting COX enzymes, which are required for prostaglandin synthesis. Since prostaglandins are the final step that raises the hypothalamic temperature set-point, blocking their production reduces fever.' },
+    { type: 'fitb', q: 'LPS contains three regions. The ______ component is the actual toxin that triggers fever when released from dead Gram-negative bacteria.', answer: 'Lipid A', explain: 'Lipid A is the innermost, lipid portion of LPS anchored in the outer membrane. It is the toxic component recognized by macrophage TLR-4 receptors, triggering the cytokine cascade that leads to fever.' },
+  ],
+  scenario: { label: '🏥 Clinical Scenario', q: 'A 60-year-old patient in the ICU develops sudden high fever, low blood pressure, and signs of systemic shock after receiving IV antibiotics for a Gram-negative urinary tract infection. Explain what happened at the molecular level.', answer: 'This is likely endotoxin shock (septic shock). When the antibiotics rapidly killed the Gram-negative bacteria, massive amounts of LPS/Lipid A were released simultaneously from the lysing bacterial cells. This flooded macrophages, triggering an overwhelming IL-1 response, which caused massive prostaglandin release → extreme fever and systemic vasodilation → low blood pressure → shock. Killing the bacteria quickly made things worse in the short term.' },
+  professor: { q: 'A researcher creates a Gram-negative bacterium genetically engineered to lack the Lipid A portion of LPS. The bacterium can still infect cells normally. Would this modified bacterium cause fever? Explain.', answer: 'NO — or significantly less fever from the endotoxin pathway. Without Lipid A, macrophages have no endotoxin to detect via TLR-4, so the IL-1 → prostaglandin → fever cascade would not be triggered through the endotoxin route. The bacterium might still cause some fever via other immune pathways (exotoxins, direct immune activation), but the signature endotoxin fever would be absent.' },
+  footer: { summary: 'LPS = Gram-negative outer membrane molecule. Lipid A = toxic endotoxin. Fever pathway: Lipid A → Macrophage → IL-1 → Hypothalamus → Prostaglandin → Fever. Endotoxin released when bacteria die.', memory: '"Lipid A Is Inflaming Patients Ferociously" = Lipid A, IL-1, Prostaglandin, Fever.', exam: 'Trace the complete fever pathway. Know difference between endotoxin (Lipid A, structural, released on death) vs exotoxin (secreted protein, released by living bacteria).', mistake: 'Students say endotoxin is "secreted" — it is NOT. It is released only when bacteria LYSE/die. Exotoxins are secreted.' }
+},
+
+antibiotics: {
+  title: 'Cell Walls & Antibiotics',
+  subtitle: 'Penicillin mechanism, PBP, beta-lactamase resistance',
+  content: `
+  <div class="lesson-number">Lesson 5 of 8</div>
+  <div class="lesson-title">💊 Cell Walls & Antibiotics</div>
+  <div class="lesson-subtitle">How penicillin kills bacteria — and how bacteria fight back</div>
+  <div class="content-section">
+    <h3>Why Target the Cell Wall?</h3>
+    <p>Antibiotics must selectively kill bacteria without harming the human host. The bacterial cell wall is an ideal target because:</p>
+    <ul>
+      <li>Humans have NO cell wall (no peptidoglycan)</li>
+      <li>Bacteria NEED their cell wall to survive osmotic pressure</li>
+      <li>Destroying it kills bacteria without touching human cells</li>
+    </ul>
+    <div class="info-box ib-definition">
+      <div class="ib-label">🔵 Key Player: Penicillin-Binding Protein (PBP)</div>
+      <div class="ib-content"><strong>PBP</strong> is an enzyme that creates the <strong>peptide cross-links</strong> between NAM-NAG strands in peptidoglycan. These cross-links give the cell wall its structural strength — like the mortar between bricks. Without PBP activity, the cell wall becomes a weak, unlinked mesh.</div>
+    </div>
+    <h4>How Penicillin Kills Bacteria</h4>
+    <div class="step-flow">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body"><strong>Normal: PBP creates peptide cross-links</strong><span>Cell wall has full structural strength. Bacteria survive osmotic pressure.</span></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-body"><strong>Penicillin enters and binds PBP</strong><span>The beta-lactam ring of penicillin mimics the natural substrate and binds irreversibly to PBP's active site.</span></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-body"><strong>PBP is blocked — no cross-links form</strong><span>The cell wall cannot be properly assembled or repaired. New wall sections are weak.</span></div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-body"><strong>Bacterial death</strong><span>As the bacterium tries to grow and divide, osmotic pressure bursts the weakened, unlinked wall. BACTERICIDAL effect.</span></div></div>
+    </div>
+    <div class="info-box ib-high-yield">
+      <div class="ib-label">🟣 Gram-Positive vs Gram-Negative Sensitivity</div>
+      <div class="ib-content">
+        <strong>Gram-positive:</strong> Generally MORE sensitive — penicillin can directly access PBP through the thick peptidoglycan (no outer membrane barrier).<br><br>
+        <strong>Gram-negative:</strong> Generally LESS sensitive — the outer membrane acts as an additional physical barrier preventing penicillin from reaching PBP.
+      </div>
+    </div>
+    <h4>Resistance: Beta-Lactamase (Penicillinase)</h4>
+    <p>Some bacteria produce the enzyme <strong>beta-lactamase</strong> (also called penicillinase). This enzyme:</p>
+    <ul>
+      <li>Cleaves and destroys the <strong>beta-lactam ring</strong> of penicillin</li>
+      <li>Renders the antibiotic inactive before it can bind PBP</li>
+      <li>Is encoded by a gene — can be carried on plasmids, spreading between bacteria</li>
+    </ul>
+    <div class="info-box ib-mistake">
+      <div class="ib-label">🔴 Critical Concept — Natural Selection</div>
+      <div class="ib-content"><strong>Antibiotic overuse does NOT cause resistance mutations.</strong> It SELECTS for bacteria that already carry resistance genes. When antibiotics kill susceptible bacteria, resistant bacteria survive and reproduce. The antibiotic is the selective pressure, NOT the cause of new mutations.</div>
+    </div>
+    <div class="info-box ib-memory">
+      <div class="ib-label">🧠 Memory Trick</div>
+      <div class="ib-content"><strong>"Penicillin Breaks the Bricklayer (PBP)"</strong> — PBP is the bricklayer making cross-links in the wall. Penicillin breaks the bricklayer → no cross-links → wall falls → bacteria dies.</div>
+    </div>
+  </div>`,
+  checks: [
+    { type: 'mc', q: 'What is the mechanism of action of penicillin?', opts: ['It disrupts the bacterial cell membrane','It inhibits Penicillin-Binding Protein (PBP), preventing peptidoglycan cross-linking','It destroys LPS in Gram-negative bacteria','It inhibits bacterial protein synthesis at the ribosome'], correct: 1, explain: '✅ Penicillin\'s beta-lactam ring binds irreversibly to PBP (Penicillin-Binding Protein), an enzyme essential for creating the peptide cross-links in peptidoglycan. Without these cross-links, the cell wall cannot be assembled properly and the bacterium lyses.' },
+    { type: 'mc', q: 'Why are Gram-positive bacteria generally MORE sensitive to penicillin than Gram-negative bacteria?', opts: ['Gram-positive bacteria have LPS which reacts with penicillin','Gram-positive bacteria have no outer membrane, allowing penicillin to directly access PBP','Gram-positive bacteria do not produce beta-lactamase','Gram-negative bacteria have thicker peptidoglycan'], correct: 1, explain: '✅ Gram-positive bacteria have no outer membrane — penicillin can directly contact the cell wall and PBP. Gram-negative bacteria have an outer membrane that acts as an additional barrier, making it harder for penicillin to reach its target.' },
+    { type: 'tf', q: 'Beta-lactamase resistance develops because antibiotics cause bacteria to mutate and become resistant over time.', answer: false, explain: '❌ This is a common misconception. Antibiotics do NOT CAUSE mutations. Resistant bacteria already exist in the population due to random mutations. Antibiotic use SELECTS for these pre-existing resistant bacteria by killing the susceptible ones. The resistant bacteria then multiply because their competition is gone.' },
+    { type: 'mc', q: 'Beta-lactamase (penicillinase) destroys penicillin by:', opts: ['Blocking PBP so penicillin cannot bind','Pumping penicillin out of the cell','Cleaving the beta-lactam ring of penicillin','Altering the cell wall so PBP is no longer needed'], correct: 2, explain: '✅ Beta-lactamase is an enzyme that specifically cleaves (breaks) the beta-lactam ring — the active part of penicillin. Once the ring is destroyed, penicillin can no longer bind PBP, rendering the antibiotic completely inactive.' },
+    { type: 'fitb', q: 'Penicillin kills bacteria by blocking ______, the enzyme responsible for creating peptide cross-links in the peptidoglycan cell wall.', answer: 'PBP', explain: 'PBP (Penicillin-Binding Protein) normally creates the peptide cross-links that give the cell wall its structural strength. When penicillin blocks PBP, new wall sections are weak and unlinked — causing the bacterium to lyse.' },
+  ],
+  scenario: { label: '🏥 Clinical Scenario', q: 'A patient with a Staphylococcus aureus skin infection is treated with penicillin. After 48 hours there is no improvement. Lab results show the isolate produces beta-lactamase. What does this mean, and what antibiotic class could be used instead?', answer: 'The S. aureus produces beta-lactamase (penicillinase), which destroys the beta-lactam ring of penicillin before it can reach PBP — rendering the antibiotic useless. This is MRSA behavior (though true MRSA involves PBP2a mutation). Treatment options include beta-lactamase-resistant antibiotics (e.g., oxacillin/nafcillin for MSSA) or vancomycin for MRSA. The bacteria were not "made resistant" by the penicillin — they were already resistant.' },
+  professor: { q: 'A pharmaceutical company wants to create a new antibiotic that targets bacterial cell wall synthesis. Why is the cell wall an ideal antibiotic target compared to, say, bacterial ribosomes?', answer: 'The cell wall (peptidoglycan) is an IDEAL target because (1) humans have NO peptidoglycan — no peptidoglycan synthesis to inhibit — so selective toxicity is perfect; (2) bacteria REQUIRE the cell wall for structural integrity; (3) disrupting it is bactericidal (kills bacteria), not just bacteriostatic. Ribosomes, while different in bacteria (70S) vs humans (80S), are structurally similar enough that ribosome-targeting antibiotics can have side effects on mitochondria (which have bacterial-origin ribosomes). The cell wall has essentially zero human equivalent, making it the safest target.' },
+  footer: { summary: 'Penicillin blocks PBP → no peptide cross-links → weak wall → bacterial lysis. Gram-positive more sensitive (no outer membrane barrier). Beta-lactamase destroys the beta-lactam ring. Resistance = natural selection, not induced mutation.', memory: '"Penicillin Breaks the Bricklayer (PBP)" — no bricklayer → no cross-links → wall collapses.', exam: 'Know penicillin mechanism, why Gram-pos more sensitive, what beta-lactamase does (breaks the ring), and that antibiotic resistance is selected, not created.', mistake: '"Antibiotics cause resistance mutations" — WRONG. They SELECT for pre-existing resistant bacteria.' }
+},
+
+mycoplasma: {
+  title: 'Mycoplasma',
+  subtitle: 'The smallest bacterium with no cell wall',
+  content: `
+  <div class="lesson-number">Lesson 6 of 8</div>
+  <div class="lesson-title">🫁 Mycoplasma</div>
+  <div class="lesson-subtitle">The only major bacterium without a cell wall</div>
+  <div class="content-section">
+    <h3>What Makes Mycoplasma Unique?</h3>
+    <div class="info-box ib-high-yield">
+      <div class="ib-label">🟣 High Yield</div>
+      <div class="ib-content">Mycoplasma is the ONLY major bacterium with <strong>NO cell wall</strong>. It is the smallest self-replicating bacterium known. Without a cell wall, it cannot be classified by Gram stain (it is neither Gram-positive nor Gram-negative). It is <strong>pleomorphic</strong> (variable shape) because it has no rigid wall to maintain shape.</div>
+    </div>
+    <ul>
+      <li><strong>No cell wall</strong> → not visible on Gram stain, pleomorphic (no fixed shape)</li>
+      <li><strong>Sterols in plasma membrane</strong> → cell membrane is stabilized differently</li>
+      <li><strong>Obligate parasite</strong> → cannot survive independently outside a host</li>
+      <li><strong>Smallest self-replicating bacterium</strong></li>
+    </ul>
+    <h4>Mycoplasma pneumoniae — "Walking Pneumonia"</h4>
+    <p>Mycoplasma pneumoniae causes <strong>Primary Atypical Pneumonia</strong>, colloquially called "walking pneumonia" because patients feel sick but can still walk around (symptoms are milder than typical pneumonia).</p>
+    <h4>Pathogenesis — How It Causes Disease</h4>
+    <div class="step-flow">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body"><strong>Inhaled and attaches to respiratory epithelium</strong><span>Special tip organelle attachment proteins bind to sialic acid receptors on ciliated airway cells</span></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-body"><strong>Destroys cilia and the mucociliary escalator</strong><span>Cilia are hairlike structures that sweep debris upward. Without them, the airway loses its mechanical defense.</span></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-body"><strong>Bacteria remain localized — no bloodstream invasion</strong><span>Mycoplasma is NOT invasive. Disease is caused by local tissue damage, not systemic spread.</span></div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-body"><strong>Dry, nonproductive cough</strong><span>Cilia destruction prevents mucus clearance. The cough reflex activates but produces little/no sputum.</span></div></div>
+    </div>
+    <h4>Clinical Features of Walking Pneumonia</h4>
+    <ul>
+      <li>Low-grade fever (mild — patient can still "walk around")</li>
+      <li>Dry, nonproductive cough (important exam clue)</li>
+      <li>Hoarseness and wheezing</li>
+      <li>Diffuse infiltrates on chest X-ray (looks worse than patient feels)</li>
+      <li>Cultures require up to 2 weeks — diagnosis is clinical</li>
+    </ul>
+    <div class="info-box ib-clinical">
+      <div class="ib-label">🟢 Critical Clinical Fact</div>
+      <div class="ib-content">Because Mycoplasma lacks a cell wall, it is <strong>COMPLETELY RESISTANT to penicillin and ALL beta-lactam antibiotics</strong> (there is no cell wall to target!). Treatment requires macrolides (<strong>erythromycin, azithromycin</strong>) or <strong>tetracycline</strong> — antibiotics that target protein synthesis instead.</div>
+    </div>
+    <div class="info-box ib-memory">
+      <div class="ib-label">🧠 Memory Trick</div>
+      <div class="ib-content"><strong>"My-coplasma has My-stery shape (pleomorphic) and is My-ssing its cell wall"</strong> — No wall → no Gram stain → no penicillin works → use erythromycin/tetracycline.</div>
+    </div>
+  </div>`,
+  checks: [
+    { type: 'mc', q: 'Why is Mycoplasma pneumoniae completely resistant to penicillin?', opts: ['It produces high levels of beta-lactamase','It has no cell wall — penicillin has no target to act on','Its outer membrane blocks penicillin from entering','It modifies its PBP enzymes so penicillin cannot bind'], correct: 1, explain: '✅ Penicillin works by blocking PBP, which makes peptide cross-links in peptidoglycan. Since Mycoplasma has NO cell wall (and no peptidoglycan), there is nothing for penicillin to target. The antibiotic is completely useless — like trying to break a lock on a door that has no lock.' },
+    { type: 'mc', q: 'A 20-year-old college student presents with 2 weeks of dry, nonproductive cough, low-grade fever, and feels well enough to still attend classes. Chest X-ray shows diffuse infiltrates that look worse than the patient appears. The most likely causative organism is:', opts: ['Streptococcus pneumoniae','Staphylococcus aureus','Mycoplasma pneumoniae','Mycobacterium tuberculosis'], correct: 2, explain: '✅ Classic walking pneumonia presentation: young adult, mild symptoms (can still walk around), DRY nonproductive cough, low-grade fever, X-ray looks disproportionately bad compared to patient\'s condition. M. pneumoniae is the leading cause of atypical pneumonia in young adults.' },
+    { type: 'tf', q: 'Mycoplasma appears as either Gram-positive or Gram-negative on a standard Gram stain.', answer: false, explain: '❌ Mycoplasma does NOT stain reliably with the Gram stain because it has NO cell wall. The Gram stain differentiates bacteria based on cell wall structure (thick vs thin peptidoglycan). With no wall, Mycoplasma cannot be categorized — it is simply not visible/unreliable with Gram stain.' },
+    { type: 'mc', q: 'What is the first-line antibiotic treatment for Mycoplasma pneumoniae infection?', opts: ['Penicillin G','Vancomycin','Erythromycin or azithromycin (macrolides)','Cephalosporins'], correct: 2, explain: '✅ Since Mycoplasma lacks a cell wall, ALL cell-wall-targeting antibiotics (penicillins, cephalosporins, vancomycin) are useless. Treatment requires antibiotics targeting protein synthesis: macrolides (erythromycin, azithromycin) or tetracyclines.' },
+    { type: 'fitb', q: 'Mycoplasma is pleomorphic (variable in shape) because it lacks a ______, which normally gives bacteria a fixed shape.', answer: 'cell wall', explain: 'The cell wall provides rigidity and a fixed shape to bacteria. Without a cell wall, Mycoplasma\'s membrane is flexible and the organism takes on whatever shape is physically convenient — making it "pleomorphic" (many shapes).' },
+  ],
+  scenario: { label: '🏥 Clinical Scenario', q: 'A university student is given a 10-day course of amoxicillin (a beta-lactam antibiotic) for suspected pneumonia. After 10 days, they are no better. A repeat chest X-ray shows the same diffuse bilateral infiltrates. The patient remains mildly symptomatic but functional. What organism should you now strongly suspect, and what treatment change is needed?', answer: 'Strongly suspect Mycoplasma pneumoniae — "walking pneumonia." The failure of amoxicillin (beta-lactam) is a KEY diagnostic clue, because Mycoplasma has NO cell wall and is completely resistant to all cell-wall-targeting antibiotics. Treatment must be changed to a macrolide (azithromycin, erythromycin) or tetracycline. The "mild but persistent" presentation and diffuse X-ray findings are also classic for Mycoplasma.' },
+  professor: { q: 'If Mycoplasma has no cell wall, how does it survive the osmotic pressure that would rupture a wall-less cell?', answer: 'Great question. Mycoplasma survives because (1) it lives INSIDE a host, where the osmotic environment is controlled and compatible with an unprotected cell — it doesn\'t face the harsh osmotic extremes that free-living bacteria might; (2) it incorporates sterols (like cholesterol) from the host into its plasma membrane, which helps stabilize and strengthen the membrane compared to other bacteria. This is why it is an obligate parasite — it cannot survive in most free-living environments.' },
+  footer: { summary: 'Mycoplasma = no cell wall → pleomorphic → not visible on Gram stain → RESISTANT to all penicillins/beta-lactams. Causes walking pneumonia: dry cough, mild fever, bad X-ray, patient feels OK. Treat with macrolides or tetracycline.', memory: '"Missing the wall → misses the penicillin" — no cell wall means no target for beta-lactams.', exam: 'High-yield: Mycoplasma is resistant to penicillin BECAUSE it has no cell wall. The walking pneumonia clinical picture (dry cough, mild symptoms, bad X-ray) is heavily tested.', mistake: 'Students say Mycoplasma is "resistant because it makes beta-lactamase." WRONG — it\'s resistant because it has NO cell wall. There is nothing to destroy.' }
+},
+
+tb: {
+  title: 'Tuberculosis',
+  subtitle: 'M. tuberculosis pathogenesis, tubercles, and the RIPE regimen',
+  content: `
+  <div class="lesson-number">Lesson 7 of 8</div>
+  <div class="lesson-title">🫀 Tuberculosis</div>
+  <div class="lesson-subtitle">One of the world's most successful human pathogens</div>
+  <div class="content-section">
+    <h3>Mycobacterium tuberculosis — Key Facts</h3>
+    <div class="info-box ib-high-yield">
+      <div class="ib-label">🟣 High Yield Numbers</div>
+      <div class="ib-content">
+        Infectious dose: <strong>~10 bacteria</strong> (extremely infectious)<br>
+        One cough: <strong>~3,000 infectious droplets</strong><br>
+        Generation time: <strong>24 hours</strong> (most bacteria: 20–30 minutes)<br>
+        Visible colonies in culture: <strong>20+ days</strong> (due to slow growth)
+      </div>
+    </div>
+    <ul>
+      <li>Acid-fast bacterium (mycolic acid wall)</li>
+      <li>Intracellular pathogen — lives inside macrophages</li>
+      <li>Slow growth makes culture diagnosis slow but acid-fast stain is rapid</li>
+    </ul>
+    <h4>TB Pathogenesis — Step by Step</h4>
+    <div class="step-flow">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body"><strong>Inhalation into alveoli</strong><span>Even a tiny number (~10 bacteria) can establish infection</span></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-body"><strong>Alveolar macrophages phagocytose bacteria</strong><span>Normal immune response — bacteria are engulfed</span></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-body"><strong>M. tuberculosis PREVENTS phagolysosome fusion</strong><span>Normally, lysosomes fuse with phagosomes to destroy engulfed material. TB blocks this → bacteria survive INSIDE the macrophage</span></div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-body"><strong>Immune system forms a TUBERCLE (granuloma)</strong><span>Immune cells surround the infected macrophages with a collagen wall, walling off the infection</span></div></div>
+      <div class="step-item"><div class="step-num">5</div><div class="step-body"><strong>Caseous necrosis develops in the tubercle center</strong><span>The center dies and takes on a "cheese-like" (caseous = Latin for cheese) consistency. Bacteria can remain dormant here for years.</span></div></div>
+      <div class="step-item"><div class="step-num">6</div><div class="step-body"><strong>Reactivation TB — if immune system weakens</strong><span>If the immune system fails (HIV, malnutrition, aging), the tubercle can rupture. Dormant bacteria re-emerge → active secondary TB</span></div></div>
+    </div>
+    <h4>Clinical Symptoms</h4>
+    <ul>
+      <li>Chronic cough (weeks to months)</li>
+      <li>Fever and night sweats</li>
+      <li>Unintentional weight loss</li>
+      <li>Hemoptysis (coughing up blood) — late finding</li>
+      <li>Upper lobe cavitary lesions on chest X-ray</li>
+    </ul>
+    <h4>Treatment: The RIPE Regimen</h4>
+    <table class="compare-table">
+      <thead><tr><th>Drug</th><th>Mechanism</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td><strong>R</strong>ifampin</td><td>Inhibits RNA polymerase</td><td>Bactericidal; turns bodily fluids orange-red</td></tr>
+        <tr><td><strong>I</strong>soniazid</td><td>Inhibits mycolic acid synthesis</td><td>Most important single drug</td></tr>
+        <tr><td><strong>P</strong>yrazinamide</td><td>Disrupts membrane transport</td><td>Active in acidic (intracellular) environment</td></tr>
+        <tr><td><strong>E</strong>thambutol</td><td>Inhibits mycolic acid synthesis</td><td>Bacteriostatic; visual side effects</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box ib-clinical" style="margin-top:1rem">
+      <div class="ib-label">🟢 Drug Resistance</div>
+      <div class="ib-content"><strong>MDR-TB:</strong> Resistant to at least Rifampin + Isoniazid (first-line drugs) | <strong>XDR-TB:</strong> Resistant to MDR drugs PLUS additional second-line agents. Treatment can last up to 2 years.</div>
+    </div>
+    <div class="info-box ib-memory">
+      <div class="ib-label">🧠 Memory Trick</div>
+      <div class="ib-content"><strong>"RIPE for the picking"</strong> = Rifampin, Isoniazid, Pyrazinamide, Ethambutol. Four drugs used together to prevent resistance (mutant bacteria resistant to one drug are killed by the other three).</div>
+    </div>
+  </div>`,
+  checks: [
+    { type: 'mc', q: 'How does M. tuberculosis survive inside macrophages after being phagocytosed?', opts: ['It produces toxins that kill the macrophage immediately','It prevents phagolysosome fusion, blocking lysosomal destruction','It escapes the phagosome into the cytoplasm','It is resistant to all lysosomal enzymes'], correct: 1, explain: '✅ The key virulence mechanism: M. tuberculosis blocks the fusion of lysosomes with the phagosome. Normally, lysosomes fuse and release digestive enzymes that destroy bacteria. TB prevents this, creating a safe intracellular niche where bacteria can survive and replicate.' },
+    { type: 'mc', q: 'What is the name of the walled-off lesion formed by the immune system in response to M. tuberculosis infection?', opts: ['Caseous necrosis','Granuloma (tubercle)','LPS complex','Acid-fast nodule'], correct: 1, explain: '✅ A tubercle (also called a granuloma) is the immune system\'s attempt to contain TB. Macrophages and immune cells surround the infected macrophages and deposit a collagen wall. The center undergoes caseous (cheese-like) necrosis. This can contain dormant bacteria for years.' },
+    { type: 'tf', q: 'M. tuberculosis has a 24-hour generation time, which is why colonies take 20 or more days to appear in culture.', answer: true, explain: '✅ Correct. Most bacteria divide every 20–30 minutes. M. tuberculosis takes 24 HOURS per division — ~72 times slower. For a visible colony (~1 million bacteria), it takes 20–30 days of slow doubling. This is why the acid-fast stain (giving results in minutes to hours) is so clinically important.' },
+    { type: 'mc', q: 'Which TB drug is specifically effective against intracellular bacteria within macrophages due to its activity in an acidic environment?', opts: ['Rifampin','Isoniazid','Ethambutol','Pyrazinamide'], correct: 3, explain: '✅ Pyrazinamide is the drug specifically active in acidic environments — like the acidic phagosomal compartment inside macrophages where M. tuberculosis hides. It disrupts membrane transport under these conditions, making it uniquely effective for the intracellular bacterial population.' },
+    { type: 'fitb', q: 'The center of a TB tubercle undergoes ______ necrosis, giving it a soft, cheese-like consistency.', answer: 'caseous', explain: 'Caseous comes from the Latin word for cheese. The center of the tubercle undergoes a distinctive type of necrosis where the dead tissue has a white, soft, cheese-like appearance. If the tubercle ruptures (due to immune failure), the dormant bacteria inside can re-establish active disease.' },
+  ],
+  scenario: { label: '🏥 Clinical Scenario', q: 'A 45-year-old HIV-positive patient develops a cough, fever, and night sweats. Chest X-ray shows upper lobe cavitary lesions. An acid-fast stain of the sputum is POSITIVE. Why did this patient develop active TB now, when he may have been infected years ago?', answer: 'This is REACTIVATION TB. HIV destroys CD4+ T cells, which are critical for maintaining the immune surveillance that keeps dormant tubercles contained. As the immune system fails, the collagen wall around the tubercle weakens. The dormant M. tuberculosis bacteria in the caseous necrotic center reactivate, burst free, and cause active disease. This is why TB and HIV are such a deadly combination — HIV specifically impairs the cell-mediated immunity that controls latent TB.' },
+  professor: { q: 'The RIPE regimen uses FOUR drugs simultaneously. Why not use just one highly effective antibiotic to treat TB?', answer: 'Using four drugs is essential to prevent resistance. When treating TB (a slow-growing organism requiring months of therapy), the large bacterial population always contains a few rare mutants naturally resistant to any single drug. If only one drug is used, those resistant mutants survive, multiply, and the patient develops drug-resistant TB. With FOUR drugs simultaneously, a bacterium resistant to one drug is killed by the other three. The probability of being simultaneously resistant to all four drugs is astronomically low. This is the principle behind combination therapy for slow-growing, treatment-prolonged infections.' },
+  footer: { summary: 'TB: acid-fast, intracellular, 24-hr generation time, 20+ days to culture. Pathogenesis: blocks phagolysosome fusion → tubercle formation → caseous necrosis → possible reactivation. Treatment: RIPE (Rifampin, Isoniazid, Pyrazinamide, Ethambutol).', memory: '"RIPE for the picking" = Rifampin, Isoniazid, Pyrazinamide, Ethambutol. Four drugs prevent resistance.', exam: 'Know the pathogenesis (phagolysosome blocking), the RIPE drugs and their mechanisms, and why 4 drugs are used. The 24-hr generation time and 20-day culture time are frequently tested numbers.', mistake: 'Confusing the acid-fast stain result: TB bacteria are PINK (acid-fast), not purple. Purple = non-acid-fast organisms (the background).' }
+},
+
+culture: {
+  title: 'Bacterial Culture & Growth',
+  subtitle: 'Media types, binary fission, and lab identification',
+  content: `
+  <div class="lesson-number">Lesson 8 of 8</div>
+  <div class="lesson-title">🧪 Bacterial Culture & Growth</div>
+  <div class="lesson-subtitle">How bacteria grow in the lab and how we identify them</div>
+  <div class="content-section">
+    <h3>Binary Fission — How Bacteria Reproduce</h3>
+    <p>Bacteria reproduce asexually by <strong>binary fission</strong>: one cell splits into two genetically identical daughter cells. Key facts:</p>
+    <ul>
+      <li>Most medically important bacteria divide every <strong>20–30 minutes</strong></li>
+      <li>Exception: M. tuberculosis divides every <strong>24 hours</strong></li>
+      <li>A single visible colony ≈ <strong>1 million bacteria</strong> (all genetically identical)</li>
+      <li>Each colony originates from ONE bacterial cell</li>
+    </ul>
+    <div class="info-box ib-high-yield">
+      <div class="ib-label">🟣 Why Colony Count Matters</div>
+      <div class="ib-content">In clinical microbiology, bacterial growth in culture confirms infection and allows species ID and antibiotic sensitivity testing (antibiogram). The number of colonies also indicates bacterial load.</div>
+    </div>
+    <h4>Culture Media Types</h4>
+    <table class="compare-table">
+      <thead><tr><th>Media</th><th>Type</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Tryptic Soy Agar (TSA/TSY)</strong></td><td>General purpose / non-selective</td><td>Grows most bacteria; baseline identification</td></tr>
+        <tr><td><strong>Blood Agar</strong></td><td>Enriched</td><td>Grows fastidious organisms; detects hemolysis (alpha, beta, gamma)</td></tr>
+        <tr><td><strong>Chocolate Agar</strong></td><td>Enriched with lysed blood</td><td>Grows very fastidious organisms (Neisseria, Haemophilus)</td></tr>
+        <tr><td><strong>MacConkey Agar</strong></td><td>Selective (Gram-negative only) + Differential</td><td>Selects Gram-negative bacteria; pink colonies = lactose fermenters</td></tr>
+      </tbody>
+    </table>
+    <h4>Lab Identification Steps — In Order</h4>
+    <div class="step-flow">
+      <div class="step-item"><div class="step-num">1</div><div class="step-body"><strong>Colony morphology</strong><span>Shape, size, color, texture, hemolysis pattern on blood agar</span></div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-body"><strong>Gram stain</strong><span>First identification step — gives staining reaction AND cell morphology simultaneously</span></div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-body"><strong>Cell morphology under microscope</strong><span>Cocci, rods, chains, clusters, diplococci</span></div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-body"><strong>Metabolic/biochemical testing</strong><span>Catalase, oxidase, coagulase, sugar fermentation tests</span></div></div>
+      <div class="step-item"><div class="step-num">5</div><div class="step-body"><strong>Antibiogram</strong><span>Antibiotic susceptibility testing to guide treatment</span></div></div>
+    </div>
+    <div class="info-box ib-exam-tip">
+      <div class="ib-label">🟠 Exam Tip</div>
+      <div class="ib-content">The Gram stain is ALWAYS the first identification step after observing colony morphology. It provides two critical pieces of information: (1) Gram reaction (+/−) and (2) cell shape — dramatically narrowing the ID possibilities.</div>
+    </div>
+    <div class="info-box ib-memory">
+      <div class="ib-label">🧠 Memory Trick</div>
+      <div class="ib-content"><strong>"Colonies Make Bacteria Memorable Always"</strong> = Colony morphology → Microscopy (Gram stain) → Biochemical tests → More tests → Antibiogram. The identification always flows from simple visual to complex biochemical.</div>
+    </div>
+  </div>`,
+  checks: [
+    { type: 'mc', q: 'Which culture medium selectively grows only Gram-negative bacteria AND differentiates lactose fermenters from non-fermenters?', opts: ['Tryptic Soy Agar (TSA)','Blood Agar','MacConkey Agar','Chocolate Agar'], correct: 2, explain: '✅ MacConkey Agar contains bile salts and crystal violet that inhibit Gram-positive bacteria (selective). It also contains a pH indicator so lactose-fermenting Gram-negative bacteria (like E. coli) produce pink/red colonies, while non-fermenters (like Salmonella) remain colorless (differential).' },
+    { type: 'tf', q: 'A single visible colony on an agar plate contains approximately 1 million genetically identical bacteria.', answer: true, explain: '✅ Correct. Each colony originates from a single bacterium that divided by binary fission repeatedly. After enough doublings (~20 binary fissions = ~1 million cells), the mass of bacteria is visible to the naked eye as a single colony. All cells are genetically identical clones of the original.' },
+    { type: 'mc', q: 'In the laboratory identification sequence, the Gram stain is performed:', opts: ['After all biochemical tests are completed','As the very first test before any others','Immediately after observing colony morphology','Only if the patient has a suspected Gram-positive infection'], correct: 1, explain: '✅ The sequence is: colony morphology FIRST (visual observation), then Gram stain SECOND. The Gram stain is always the first active identification step. It simultaneously reveals staining reaction (+/−) and cell shape, rapidly narrowing the differential before expensive biochemical tests.' },
+    { type: 'mc', q: 'Which culture media is most appropriate for growing a very fastidious organism that requires blood components but cannot grow on standard blood agar?', opts: ['MacConkey Agar','Tryptic Soy Agar','Blood Agar','Chocolate Agar'], correct: 3, explain: '✅ Chocolate Agar contains LYSED (heated) blood. Heating blood cells releases intracellular nutrients (heme, NAD+) that are unavailable in regular blood agar. This allows very fastidious organisms like Neisseria gonorrhoeae and Haemophilus influenzae to grow.' },
+    { type: 'fitb', q: 'Bacteria reproduce by ______ — one cell splits into two genetically identical daughter cells, with most medically important bacteria dividing every 20–30 minutes.', answer: 'binary fission', explain: 'Binary fission is the main reproductive strategy of bacteria. One cell elongates, replicates its circular chromosome, and physically divides into two identical daughter cells. This exponential growth means a single bacterium can become 1 million in just 6–7 hours.' },
+  ],
+  scenario: { label: '🏥 Clinical Scenario', q: 'A urine sample is plated on TSA, Blood Agar, and MacConkey Agar. After 24 hours, you see large pink/red colonies ONLY on MacConkey. No growth on Blood Agar or TSA. What does this pattern tell you?', answer: 'The pink/red colonies on MacConkey only suggest a Gram-NEGATIVE, lactose-FERMENTING bacterium (E. coli being the classic example in UTIs). Growth only on MacConkey means: (1) the organism is Gram-negative (MacConkey is selective against Gram-positives) and (2) it ferments lactose (pink color on MacConkey). The Gram stain would confirm, followed by biochemical tests to identify the species and an antibiogram to guide antibiotic choice.' },
+  professor: { q: 'A sample contains 1 bacterium. If it divides every 30 minutes, how many bacteria are present after 5 hours?', answer: 'After 5 hours (300 minutes), at one division per 30 minutes = 10 divisions. Starting with 1 bacterium: 2^10 = 1,024 bacteria. After 7 hours (14 divisions): 2^14 = 16,384. After 10 hours (20 divisions): 2^20 ≈ 1,048,576 — over 1 million! This exponential growth explains why infections can become severe so quickly and why early antibiotic treatment matters.' },
+  footer: { summary: 'Binary fission: bacteria double every 20–30 min (TB: 24 hrs). 1 colony ≈ 1 million bacteria. Media: TSA (general), Blood (enriched/hemolysis), Chocolate (very fastidious), MacConkey (Gram-neg + lactose). ID sequence: Colony → Gram stain → Morphology → Biochemical → Antibiogram.', memory: '"Colonies Make Bacteria Memorable Always" = Colony morphology → Microscopy → Biochemical → More tests → Antibiogram.', exam: 'Know the four media types and their purposes. MacConkey is heavily tested (Gram-neg selective + lactose differential). Know that Gram stain always comes after colony observation.', mistake: 'Confusing Blood Agar with Chocolate Agar — both are enriched, but chocolate has LYSED blood that releases intracellular nutrients for the most fastidious organisms.' }
+}
+
+};
+
+// ===================== QUESTION BANK =====================
+const MC_QUESTIONS = [
+  {q:'Which component of LPS is directly responsible for triggering fever?',opts:['O Antigen','Core Polysaccharide','Lipid A','Teichoic acid'],correct:2,explain:'Lipid A is the innermost toxic component of LPS. Released from dying Gram-negative bacteria, it triggers macrophage IL-1 secretion → prostaglandin production → fever.'},
+  {q:'Gram-positive bacteria stain purple because:',opts:['They contain LPS in their outer membrane','Their thick peptidoglycan traps the crystal violet-iodine complex','They have mycolic acid in their cell wall','They produce safranin'],correct:1,explain:'The thick, multilayered peptidoglycan of Gram-positive bacteria retains the crystal violet-iodine complex even after acetone-alcohol decolorization.'},
+  {q:'Why is penicillin generally more effective against Gram-positive than Gram-negative bacteria?',opts:['Gram-negative bacteria produce more beta-lactamase','Gram-negative bacteria have an outer membrane that blocks penicillin access to PBP','Gram-positive bacteria have more PBP enzymes','Gram-positive bacteria cannot produce beta-lactamase'],correct:1,explain:'Gram-negative bacteria have an outer membrane that acts as an additional barrier, making it harder for penicillin to reach its target (PBP). Gram-positive bacteria have no outer membrane, so penicillin can directly access the cell wall.'},
+  {q:'What is the primary function of Penicillin-Binding Protein (PBP)?',opts:['Degrade beta-lactam antibiotics','Create peptide cross-links in peptidoglycan','Transport LPS to the outer membrane','Synthesize mycolic acid'],correct:1,explain:'PBP (Penicillin-Binding Protein) is the enzyme responsible for creating the peptide cross-links that give peptidoglycan its structural strength. Penicillin works by irreversibly blocking PBP.'},
+  {q:'The fever pathway caused by Gram-negative bacterial infection goes:',opts:['LPS → TNF → Hypothalamus → Fever','Lipid A → IL-1 → Prostaglandin → Fever','LPS → Prostaglandin → IL-1 → Fever','O Antigen → IL-6 → Fever'],correct:1,explain:'The correct pathway: Gram-negative bacteria release Lipid A → macrophages detect Lipid A and secrete IL-1 → IL-1 travels to hypothalamus → hypothalamus produces prostaglandins → raised temperature set-point → fever.'},
+  {q:'Mycoplasma pneumoniae is resistant to penicillin because:',opts:['It produces large amounts of beta-lactamase','It has an unusually thick outer membrane','It has no cell wall — penicillin has no target','Its PBP has a low affinity for beta-lactam antibiotics'],correct:2,explain:'Penicillin works by targeting PBP and disrupting cell wall (peptidoglycan) synthesis. Since Mycoplasma has NO cell wall at all, there is nothing for penicillin to act on.'},
+  {q:'In the Gram stain, which step is most critical and most susceptible to technique errors?',opts:['Crystal violet primary stain application','Gram\'s iodine mordant application','Acetone-alcohol decolorization','Safranin counterstain application'],correct:2,explain:'Over-decolorizing removes crystal violet from Gram-positive cells, making them appear falsely Gram-negative. Under-decolorizing prevents removal from Gram-negative cells, making them appear falsely Gram-positive.'},
+  {q:'Which statement correctly describes endotoxin?',opts:['It is a protein actively secreted by living Gram-negative bacteria','It is Lipid A, a structural component released when Gram-negative bacteria die','It is found in the thick peptidoglycan layer of Gram-positive bacteria','It is a toxin produced during spore formation'],correct:1,explain:'Endotoxin = Lipid A = the toxic component of LPS embedded in the Gram-negative outer membrane. It is NOT secreted by living bacteria — it is released when bacteria die and lyse. This contrasts with exotoxins, which are actively secreted proteins.'},
+  {q:'Acid-fast bacteria appear PINK after the Ziehl-Neelsen stain because:',opts:['They stain with safranin counterstain','Their mycolic acid wall prevents acid-alcohol from removing carbol fuchsin','They contain crystal violet in their thick peptidoglycan','They take up the Gram\'s iodine mordant differently'],correct:1,explain:'The waxy mycolic acid layer prevents acid-alcohol from removing carbol fuchsin from acid-fast bacteria (like Mycobacterium). They retain the pink carbol fuchsin while non-acid-fast bacteria lose it and take up the purple counterstain.'},
+  {q:'M. tuberculosis evades destruction after macrophage phagocytosis by:',opts:['Escaping the phagosome into the cytoplasm immediately','Preventing phagolysosome fusion so lysosomes cannot destroy it','Producing a toxin that kills the macrophage','Becoming a spore inside the phagosome'],correct:1,explain:'TB\'s key virulence mechanism: it blocks the fusion of lysosomes with the phagosome. Lysosomes contain digestive enzymes that would destroy the bacteria. By preventing fusion, M. tuberculosis creates a safe intracellular environment.'},
+  {q:'A positive control in the acid-fast stain procedure uses:',opts:['E. coli (Gram-negative rod)','S. epidermidis (Gram-positive cocci)','M. smegmatis (acid-fast organism)','E. faecalis (Gram-positive cocci)'],correct:2,explain:'The positive control must be an acid-fast organism to verify the staining procedure works. M. smegmatis is a non-pathogenic acid-fast organism perfect for this purpose. S. epidermidis is used as the negative control (should stain purple, not pink).'},
+  {q:'Which culture medium selectively grows Gram-negative bacteria AND differentiates lactose fermenters from non-fermenters?',opts:['Tryptic Soy Agar','Blood Agar','MacConkey Agar','Chocolate Agar'],correct:2,explain:'MacConkey agar contains bile salts and crystal violet that inhibit Gram-positive growth (selective) and a pH indicator that turns lactose-fermenting colonies pink/red (differential).'},
+  {q:'The RIPE regimen for tuberculosis uses four drugs because:',opts:['M. tuberculosis requires higher drug concentrations than other bacteria','Four drugs prevent resistance — bacteria resistant to one are killed by the other three','The drugs are more effective when combined due to synergy','TB is a mixed infection requiring drugs for multiple organisms'],correct:1,explain:'Using four drugs simultaneously makes it essentially impossible for bacteria to be resistant to all four. A bacterium naturally resistant to one drug is killed by the remaining three, preventing drug-resistant TB from emerging during prolonged treatment.'},
+  {q:'Which TB drug is specifically effective in the acidic intracellular environment of macrophages?',opts:['Rifampin','Isoniazid','Pyrazinamide','Ethambutol'],correct:2,explain:'Pyrazinamide is converted to its active form in acidic conditions, like the acidic phagosomal compartment where M. tuberculosis hides inside macrophages. This makes it uniquely effective for eliminating the intracellular bacterial population.'},
+  {q:'Beta-lactamase destroys penicillin by:',opts:['Blocking PBP so penicillin cannot bind','Pumping penicillin out of the bacterial cell','Cleaving the beta-lactam ring of penicillin','Modifying the bacterial cell wall so it no longer needs PBP'],correct:2,explain:'Beta-lactamase (penicillinase) is an enzyme that specifically cleaves the beta-lactam ring — the active chemical structure of penicillin. Once destroyed, penicillin cannot bind PBP and is ineffective.'},
+  {q:'What does "walking pneumonia" describe, and which organism causes it?',opts:['Severe pneumonia requiring immediate hospitalization; Streptococcus pneumoniae','Mild atypical pneumonia where the patient remains functional; Mycoplasma pneumoniae','Drug-resistant pneumonia; Mycobacterium tuberculosis','Viral pneumonia; Influenza'],correct:1,explain:'Walking pneumonia = Primary Atypical Pneumonia caused by Mycoplasma pneumoniae. Patients feel sick but can still ambulate (walk around) — distinguishing it from typical bacterial pneumonia which is more severe.'},
+  {q:'Which of the following bacteria would be INVISIBLE or unreliable on a standard Gram stain?',opts:['Streptococcus pyogenes','Staphylococcus aureus','Mycoplasma pneumoniae','Escherichia coli'],correct:2,explain:'Mycoplasma has no cell wall — the Gram stain differentiates bacteria based on cell wall structure (thick vs thin peptidoglycan). With no wall at all, Mycoplasma cannot be reliably categorized and essentially does not stain with the Gram stain.'},
+  {q:'A Gram stain shows Gram-positive cocci in irregular clusters. This is most consistent with:',opts:['Streptococcus (chains)','Staphylococcus (clusters)','Neisseria (diplococci)','Bacillus (rods)'],correct:1,explain:'Staphylococci divide in multiple planes, remaining loosely attached and forming irregular grape-like clusters. Streptococci divide in one plane, staying attached in chains. The cluster arrangement is characteristic of Staphylococcus.'},
+  {q:'Chocolate agar differs from blood agar in that:',opts:['It contains bile salts to select Gram-negative bacteria','Blood has been lysed/heated, releasing intracellular nutrients not available in regular blood agar','It contains fewer growth factors for slower-growing bacteria','It is designed specifically for Gram-positive bacteria'],correct:1,explain:'Chocolate agar uses heated (lysed) blood. Heating blood cells releases intracellular nutrients — particularly heme (factor X) and NAD+ (factor V) — that remain trapped inside intact red blood cells in regular blood agar. These released factors support growth of very fastidious organisms like Neisseria and Haemophilus.'},
+  {q:'Antibiotic resistance develops primarily because:',opts:['Antibiotics cause bacteria to mutate and develop resistance','Antibiotics select for pre-existing resistant bacteria through natural selection','Bacteria communicate and share resistance information when threatened','Overuse of antibiotics exhausts their effectiveness over time'],correct:1,explain:'Resistance is a result of natural selection, not antibiotic-induced mutation. Resistant bacteria always exist in small numbers in any population (from random mutations). Antibiotics kill susceptible bacteria, leaving only resistant bacteria to survive and multiply.'},
+  {q:'The infectious dose of M. tuberculosis is approximately:',opts:['1,000–10,000 bacteria','100–500 bacteria','~10 bacteria','~100,000 bacteria'],correct:2,explain:'M. tuberculosis has an extremely LOW infectious dose of approximately 10 bacteria — making it highly transmissible. A single cough produces ~3,000 infectious droplets. This low infectious dose contributes to its status as a major global pathogen.'},
+  {q:'In the Gram stain, what is the role of Gram\'s iodine?',opts:['Primary stain that turns all bacteria purple','Mordant that forms a larger CV-iodine complex harder to decolorize','Decolorizer that removes crystal violet from Gram-negative cells','Counterstain that makes Gram-negative cells visible'],correct:1,explain:'Iodine acts as a mordant — it bonds with crystal violet to form a larger, less mobile crystal violet-iodine (CV-I) complex inside the cells. This larger complex is harder to remove during decolorization, especially from the dense Gram-positive peptidoglycan.'},
+  {q:'Why does M. tuberculosis take 20+ days to form visible colonies in culture?',opts:['It requires special growth factors not commonly available','Its generation time is 24 hours — far slower than the 20-30 min typical bacteria','It only grows on specialized selective media','It forms spores that must first germinate'],correct:1,explain:'A visible colony requires approximately 1 million bacteria (~20 doublings from a single cell). With a 24-hour generation time, 20 doublings = 20 days minimum. Compare to typical bacteria at 30-minute generation time = 10 hours to reach the same count.'},
+  {q:'Porins in the Gram-negative outer membrane function to:',opts:['Produce and secrete LPS','Allow selective passage of small hydrophilic molecules through the outer membrane','Anchor bacteria to host cell surfaces','Produce beta-lactamase enzymes'],correct:1,explain:'Porin proteins form water-filled channels in the Gram-negative outer membrane. They allow selective passage of small hydrophilic molecules (including some nutrients and some antibiotics). Some antibiotics exploit these channels, while others are blocked by them.'},
+  {q:'Caseous necrosis refers to:',opts:['Liquefactive necrosis of brain tissue during meningitis','A cheese-like necrotic center found inside TB tubercles','Necrosis of bacterial cells by lysosomal enzymes','Destruction of red blood cells during hemolysis'],correct:1,explain:'Caseous (from Latin "caseus" = cheese) necrosis is the distinctive dead tissue found in the center of TB tubercles. It has a soft, white, cheese-like consistency. Dormant M. tuberculosis bacteria can remain viable here for years and cause reactivation TB if immunity fails.'},
+];
+
+const TF_QUESTIONS = [
+  {q:'Gram-positive bacteria contain Lipopolysaccharide (LPS) in their outer membrane.',answer:false,explain:'FALSE. LPS is found ONLY in Gram-negative bacteria. Gram-positive bacteria lack an outer membrane entirely. This is one of the most fundamental distinctions.'},
+  {q:'The acid-fast stain uses heat to force carbol fuchsin through the waxy mycolic acid layer.',answer:true,explain:'TRUE. Without heat, the waxy mycolic acid layer is nearly impermeable to the aqueous carbol fuchsin dye. Heat is essential to drive the stain through the lipid barrier.'},
+  {q:'Mycoplasma can be effectively treated with amoxicillin (a penicillin-type antibiotic).',answer:false,explain:'FALSE. Mycoplasma has NO cell wall — penicillin/amoxicillin have no target to act on. Treatment requires macrolides (erythromycin, azithromycin) or tetracyclines.'},
+  {q:'MacConkey agar is both selective (for Gram-negative) and differential (lactose fermentation).',answer:true,explain:'TRUE. MacConkey contains bile salts that inhibit Gram-positive bacteria (selective) and a pH indicator that turns lactose-fermenting colonies pink (differential).'},
+  {q:'M. tuberculosis has the same generation time (20-30 min) as most other medically important bacteria.',answer:false,explain:'FALSE. M. tuberculosis has a 24-HOUR generation time — ~72 times slower than typical bacteria. This is why it takes 20+ days to form visible colonies and why treatment requires months.'},
+  {q:'Endotoxin (Lipid A) is actively secreted by living Gram-negative bacteria.',answer:false,explain:'FALSE. Lipid A is a structural component embedded in the outer membrane. It is only released when Gram-negative bacteria die and lyse. Actively secreted toxins are exotoxins (proteins).'},
+  {q:'Penicillin is bactericidal — it kills bacteria rather than merely inhibiting their growth.',answer:true,explain:'TRUE. Penicillin is bactericidal. By blocking PBP and preventing peptidoglycan cross-linking, it causes the growing bacterium\'s wall to fail, resulting in lysis and death from osmotic pressure.'},
+  {q:'The negative control in the Gram stain is Staphylococcus epidermidis.',answer:false,explain:'FALSE. S. epidermidis is a Gram-POSITIVE organism used as the POSITIVE control (should appear purple). The NEGATIVE control is E. coli (Gram-negative, should appear pink).'},
+  {q:'Mycobacterium tuberculosis survives inside macrophages by preventing phagolysosome fusion.',answer:true,explain:'TRUE. This is TB\'s key virulence mechanism. By blocking phagolysosome fusion, M. tuberculosis prevents its destruction by lysosomal enzymes, creating a safe intracellular niche.'},
+  {q:'A patient developing fever after penicillin treatment for a Gram-positive infection is experiencing endotoxin fever from Lipid A.',answer:false,explain:'FALSE. Endotoxin (Lipid A) comes only from Gram-NEGATIVE bacteria. A Gram-positive infection cannot cause endotoxin fever. Any fever in this case would be from the infection itself, exotoxins, or drug reactions.'},
+  {q:'The Gram stain is the first identification step performed after observing colony morphology.',answer:true,explain:'TRUE. The lab identification sequence is: colony morphology → Gram stain → cell morphology → biochemical tests → antibiogram. The Gram stain always comes first as the initial active identification step.'},
+  {q:'Over-decolorizing in the Gram stain can cause Gram-positive bacteria to appear Gram-negative.',answer:true,explain:'TRUE. Excessive acetone-alcohol application removes crystal violet from even the thick Gram-positive cell wall, making them appear pink (falsely negative). This is why timing and technique are critical.'},
+  {q:'NSAIDs (like aspirin) reduce fever by blocking IL-1 secretion from macrophages.',answer:false,explain:'FALSE. NSAIDs reduce fever by blocking PROSTAGLANDIN synthesis (COX enzyme inhibition). IL-1 secretion from macrophages is unaffected. The sequence is: Lipid A → Macrophage → IL-1 → Hypothalamus → Prostaglandin (blocked by NSAIDs) → Fever.'},
+  {q:'A single visible colony on an agar plate contains approximately 1 million bacteria.',answer:true,explain:'TRUE. Binary fission starting from one bacterium requires approximately 20 doublings to reach 1 million cells (2^20 ≈ 1,048,576). At 20-30 min per division, this takes about 10 hours for typical bacteria.'},
+  {q:'Rifampin is one of the four first-line drugs in the RIPE TB treatment regimen.',answer:true,explain:'TRUE. RIPE = Rifampin, Isoniazid, Pyrazinamide, Ethambutol. Rifampin inhibits bacterial RNA polymerase and is bactericidal. It is one of the most important TB drugs.'},
+  {q:'Mycoplasma has a fixed, rod-shaped morphology visible on the standard Gram stain.',answer:false,explain:'FALSE. Mycoplasma is pleomorphic (variable shape) because it has NO cell wall to maintain a fixed shape. Additionally, it does not stain reliably with the Gram stain.'},
+  {q:'The RIPE treatment regimen for TB uses four drugs simultaneously to prevent drug resistance.',answer:true,explain:'TRUE. Using four drugs simultaneously means any bacterium resistant to one drug is killed by the other three. The probability of being resistant to all four simultaneously is astronomically low, preventing the emergence of MDR-TB.'},
+  {q:'Chocolate agar contains lysed blood, which releases additional growth factors for very fastidious organisms.',answer:true,explain:'TRUE. Heating/lysing blood cells in chocolate agar releases intracellular nutrients (heme/factor X, NAD+/factor V) that are unavailable in regular blood agar, supporting growth of organisms like Neisseria and Haemophilus.'},
+  {q:'An organism that stains pink on both the Gram stain and the acid-fast stain would be classified as Gram-negative.',answer:false,explain:'FALSE. Acid-fast bacteria (like Mycobacterium) that stain pink on the acid-fast stain do NOT reliably stain on the Gram stain because their waxy mycolic acid coat prevents standard staining. They are NOT simply "Gram-negative."'},
+  {q:'The O Antigen component of LPS is used to identify specific bacterial strains.',answer:true,explain:'TRUE. The O Antigen is the polysaccharide chain on the outermost portion of LPS. Its specific structure varies between bacterial strains and is used for serotyping (e.g., E. coli O157:H7 — the "O" refers to the O Antigen type).'},
+];
+
+// ===================== STATE =====================
+let mastery = JSON.parse(localStorage.getItem('bio130_mastery') || '{}');
+let currentTopic = null;
+let checkState = {};
+let testQuestions = [];
+let testIndex = 0;
+let testScore = 0;
+let testAnswered = false;
+let testFlagged = [];
+let testMissed = [];
+let testMode = 'quick';
+let timerInterval = null;
+let timerSeconds = 0;
+let scoreHistory = JSON.parse(localStorage.getItem('bio130_scores') || '[]');
+let darkMode = false;
+let dragSrc = null;
+
+// ===================== SCREENS =====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+  if (id === 'home') { renderTopicGrid(); renderMasteryBars('home'); }
+  if (id === 'content') { renderTopicGrid(); }
+  if (id === 'score') { updateScoreTracker(); renderMasteryBars('score'); }
+}
+
+// ===================== RENDER TOPIC GRID =====================
+function renderTopicGrid() {
+  const container = document.getElementById('topic-grid-container');
+  container.innerHTML = '';
+  let allMastered = true;
+  TOPICS.forEach(t => {
+    const m = getMastery(t.id);
+    if (m < 100) allMastered = false;
+    const color = m === 100 ? '#10B981' : m >= 60 ? '#F59E0B' : '#7C3AED';
+    const card = document.createElement('div');
+    card.className = 'topic-card' + (m === 100 ? ' mastered' : '');
+    card.onclick = () => showLesson(t.id);
+    card.innerHTML = `
+      <div class="tc-icon">${t.icon}</div>
+      <h3>${t.title}</h3>
+      <p>${t.desc}</p>
+      <span class="tc-badge ${t.badge}">${t.badgeTxt}</span>
+      <div class="tc-mastery"><div class="tc-mastery-fill" style="width:${m}%;background:${color}"></div></div>
+      <div class="tc-mastery-label" style="color:${color}">${m}% mastered</div>`;
+    container.appendChild(card);
+  });
+  const msg = document.getElementById('mastery-complete-msg');
+  if (msg) msg.style.display = allMastered ? 'block' : 'none';
+}
+
+function getMastery(topicId) {
+  const m = mastery[topicId];
+  if (!m) return 0;
+  const lesson = LESSONS[topicId];
+  if (!lesson) return 0;
+  const total = lesson.checks.length;
+  const correct = m.correct || 0;
+  return Math.round((correct / total) * 100);
+}
+
+function saveMastery(topicId, checkIdx, wasCorrect) {
+  if (!mastery[topicId]) mastery[topicId] = { correct: 0, answered: [] };
+  if (!mastery[topicId].answered.includes(checkIdx)) {
+    mastery[topicId].answered.push(checkIdx);
+    if (wasCorrect) mastery[topicId].correct++;
+  }
+  localStorage.setItem('bio130_mastery', JSON.stringify(mastery));
+}
+
+// ===================== MASTERY BARS =====================
+function renderMasteryBars(where) {
+  const id = where === 'home' ? 'mastery-bars-home' : 'mastery-bars-score';
+  const container = document.getElementById(id);
+  if (!container) return;
+  container.innerHTML = '';
+  TOPICS.forEach(t => {
+    const m = getMastery(t.id);
+    const color = m === 100 ? '#10B981' : m >= 60 ? '#F59E0B' : '#7C3AED';
+    const row = document.createElement('div');
+    row.className = 'mastery-row';
+    row.innerHTML = `
+      <span class="mastery-label">${t.icon} ${t.title.split(' ').slice(0,2).join(' ')}</span>
+      <div class="mastery-bar-bg"><div class="mastery-bar-fill" style="width:${m}%;background:${color}"></div></div>
+      <span class="mastery-pct">${m}%</span>`;
+    container.appendChild(row);
+  });
+}
+
+// ===================== SHOW LESSON =====================
+function showLesson(topicId) {
+  currentTopic = topicId;
+  checkState = {};
+  const lesson = LESSONS[topicId];
+  if (!lesson) return;
+  document.getElementById('topic-list').style.display = 'none';
+  const container = document.getElementById('lesson-container');
+  container.style.display = 'block';
+  container.innerHTML = `
+    <button class="back-btn" onclick="closelesson()" style="margin-bottom:1.5rem">← All Topics</button>
+    ${lesson.content}
+    <hr class="divider">
+    <div style="background:linear-gradient(135deg,#1E3A8A11,#7C3AED11);border:2px solid var(--purple);border-radius:18px;padding:1.5rem;margin-bottom:1.5rem">
+      <h3 style="font-size:1.1rem;font-weight:700;color:var(--purple);margin-bottom:1.25rem">⚡ Quick Check — Test Your Understanding</h3>
+      <p style="font-size:0.83rem;color:var(--muted);margin-bottom:1.25rem">Answer all questions correctly to earn mastery for this topic.</p>
+      ${lesson.checks.map((c, i) => renderCheck(c, i, topicId)).join('')}
+    </div>
+    ${renderScenario(lesson.scenario)}
+    ${renderProfessor(lesson.professor)}
+    ${renderFooter(lesson.footer, topicId)}
+    <div class="btn-row" id="next-btn-row-${topicId}">
+      <div class="locked-btn" id="next-lesson-lock-${topicId}">🔒 Complete all checks to continue</div>
+    </div>`;
+  window.scrollTo(0, 0);
+  updateNextBtn(topicId);
+}
+
+function closelesson() {
+  document.getElementById('lesson-container').style.display = 'none';
+  document.getElementById('topic-list').style.display = 'block';
+  renderTopicGrid();
+}
+
+// ===================== RENDER CHECKS =====================
+function renderCheck(c, idx, topicId) {
+  const uid = `${topicId}_${idx}`;
+  if (c.type === 'mc') return renderMC(c, idx, topicId, uid);
+  if (c.type === 'tf') return renderTF(c, idx, topicId, uid);
+  if (c.type === 'fitb') return renderFITB(c, idx, topicId, uid);
+  if (c.type === 'match') return renderMatch(c, idx, topicId, uid);
+  return '';
+}
+
+function renderMC(c, idx, topicId, uid) {
+  const letters = ['A','B','C','D'];
+  const opts = c.opts.map((o, i) => `
+    <button class="kc-option" onclick="answerMC('${uid}',${i},${c.correct},'${topicId}',${idx})" id="opt_${uid}_${i}">
+      <span class="opt-letter">${letters[i]}</span>${o}
+    </button>`).join('');
+  return `
+    <div class="knowledge-check" id="kc_${uid}">
+      <div class="kc-header"><span class="kc-icon">❓</span><h4>Question ${idx+1}</h4><span class="kc-type">Multiple Choice</span></div>
+      <div class="kc-question">${c.q}</div>
+      <div class="kc-options" id="opts_${uid}">${opts}</div>
+      <div class="kc-feedback" id="fb_${uid}"></div>
+    </div>`;
+}
+
+function renderTF(c, idx, topicId, uid) {
+  return `
+    <div class="knowledge-check" id="kc_${uid}">
+      <div class="kc-header"><span class="kc-icon">⚖️</span><h4>Question ${idx+1}</h4><span class="kc-type">True / False</span></div>
+      <div class="kc-question">${c.q}</div>
+      <div class="tf-options">
+        <button class="tf-btn tf-true" id="tf_true_${uid}" onclick="answerTFCheck('${uid}',true,${c.answer},'${topicId}',${idx})">✅ True</button>
+        <button class="tf-btn tf-false" id="tf_false_${uid}" onclick="answerTFCheck('${uid}',false,${c.answer},'${topicId}',${idx})">❌ False</button>
+      </div>
+      <div class="kc-feedback" id="fb_${uid}"></div>
+    </div>`;
+}
+
+function renderFITB(c, idx, topicId, uid) {
+  return `
+    <div class="knowledge-check" id="kc_${uid}">
+      <div class="kc-header"><span class="kc-icon">✏️</span><h4>Question ${idx+1}</h4><span class="kc-type">Fill in the Blank</span></div>
+      <div class="kc-question">${c.q.replace('______', `<input class="fitb-input" id="fitb_${uid}" placeholder="Type answer..." onkeydown="if(event.key==='Enter')checkFITB('${uid}','${c.answer.replace(/'/g,"\\'")}','${topicId}',${idx})">`)}</div>
+      <div class="fitb-wrap">
+        <button class="fitb-check-btn" onclick="checkFITB('${uid}','${c.answer.replace(/'/g,"\\'")}','${topicId}',${idx})">Check Answer</button>
+      </div>
+      <div class="kc-feedback" id="fb_${uid}"></div>
+    </div>`;
+}
+
+function renderMatch(c, idx, topicId, uid) {
+  const shuffledDefs = [...c.pairs].sort(() => Math.random() - 0.5);
+  const termHTML = c.pairs.map((p, i) => `
+    <div class="draggable" draggable="true" id="drag_${uid}_${i}" data-term="${p.term}"
+      ondragstart="onDragStart(event,'drag_${uid}_${i}')">${p.term}</div>`).join('');
+  const defHTML = shuffledDefs.map((p, i) => `
+    <div>
+      <div class="drop-zone" id="drop_${uid}_${i}" data-def="${p.def}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="onDrop(event,'${uid}',${i},'${topicId}',${idx},${c.pairs.length})">
+        Drop here
+      </div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:4px">${p.def}</div>
+    </div>`).join('');
+  return `
+    <div class="knowledge-check" id="kc_${uid}">
+      <div class="kc-header"><span class="kc-icon">🔗</span><h4>Question ${idx+1}</h4><span class="kc-type">Matching</span></div>
+      <div class="kc-question">Drag each term to its correct match:</div>
+      <div class="match-container">
+        <div class="match-terms">
+          <div class="match-col-label">Terms</div>
+          <div id="terms_${uid}">${termHTML}</div>
+        </div>
+        <div class="match-defs">
+          <div class="match-col-label">Definitions</div>
+          <div id="defs_${uid}">${defHTML}</div>
+        </div>
+      </div>
+      <div class="kc-feedback" id="fb_${uid}"></div>
+    </div>`;
+}
+
+function renderScenario(s) {
+  if (!s) return '';
+  const id = 'sc_' + Math.random().toString(36).substr(2,6);
+  return `
+    <div class="scenario-box">
+      <div class="scenario-label">${s.label}</div>
+      <div class="scenario-q">${s.q}</div>
+      <button class="reveal-btn" onclick="toggleReveal('${id}',this)">💡 Reveal Answer</button>
+      <div class="reveal-answer" id="${id}">${s.answer}</div>
+    </div>`;
+}
+
+function renderProfessor(p) {
+  if (!p) return '';
+  const id = 'prof_' + Math.random().toString(36).substr(2,6);
+  return `
+    <div class="professor-box">
+      <div class="prof-label">🎓 Think Like Your Professor</div>
+      <div class="prof-q">${p.q}</div>
+      <button class="reveal-btn" onclick="toggleReveal('${id}',this)">💡 Reveal Answer</button>
+      <div class="reveal-answer" id="${id}">${p.answer}</div>
+    </div>`;
+}
+
+function renderFooter(f, topicId) {
+  if (!f) return '';
+  const revId = 'exp_' + topicId;
+  return `
+    <div class="lesson-footer">
+      <h4>📋 Lesson Summary</h4>
+      <div class="lesson-footer-grid">
+        <div class="lf-item lf-summary"><strong>✅ Summary</strong>${f.summary}</div>
+        <div class="lf-item lf-memory"><strong>🧠 Memory Trick</strong>${f.memory}</div>
+        <div class="lf-item lf-exam"><strong>🎯 Exam Tip</strong>${f.exam}</div>
+        <div class="lf-item lf-mistake"><strong>⚠️ Common Mistake</strong>${f.mistake}</div>
+      </div>
+      <div class="reveal-wrap" style="margin-top:1rem">
+        <div class="reveal-prompt">Can You Explain It? In your own words, describe the key concept of this lesson.</div>
+        <button class="reveal-btn" onclick="toggleReveal('${revId}',this)">📖 Show Sample Answer</button>
+        <div class="reveal-answer" id="${revId}">${f.summary}</div>
+      </div>
+    </div>`;
+}
+
+// ===================== ANSWER HANDLERS =====================
+function answerMC(uid, selected, correct, topicId, checkIdx) {
+  if (checkState[uid]) return;
+  checkState[uid] = true;
+  const lesson = LESSONS[topicId];
+  const c = lesson.checks[checkIdx];
+  const opts = document.querySelectorAll(`#opts_${uid} .kc-option`);
+  opts.forEach(o => o.classList.add('locked'));
+  opts[correct].classList.add('reveal');
+  const wasCorrect = selected === correct;
+  if (wasCorrect) { opts[selected].classList.remove('reveal'); opts[selected].classList.add('correct'); }
+  else { opts[selected].classList.add('incorrect'); }
+  const fb = document.getElementById(`fb_${uid}`);
+  fb.className = 'kc-feedback show-fb ' + (wasCorrect ? 'correct-fb' : 'incorrect-fb');
+  fb.innerHTML = (wasCorrect ? '✅ Correct! ' : '❌ Incorrect. ') + c.explain;
+  saveMastery(topicId, checkIdx, wasCorrect);
+  if (wasCorrect) launchConfetti();
+  updateNextBtn(topicId);
+}
+
+function answerTFCheck(uid, selected, correct, topicId, checkIdx) {
+  if (checkState[uid]) return;
+  checkState[uid] = true;
+  const c = LESSONS[topicId].checks[checkIdx];
+  const wasCorrect = selected === correct;
+  const trueBtn = document.getElementById(`tf_true_${uid}`);
+  const falseBtn = document.getElementById(`tf_false_${uid}`);
+  trueBtn.classList.add('locked'); falseBtn.classList.add('locked');
+  if (wasCorrect) {
+    (selected ? trueBtn : falseBtn).classList.add('correct');
+  } else {
+    (selected ? trueBtn : falseBtn).classList.add('incorrect');
+    (!selected ? trueBtn : falseBtn).classList.add('correct');
+  }
+  const fb = document.getElementById(`fb_${uid}`);
+  fb.className = 'kc-feedback show-fb ' + (wasCorrect ? 'correct-fb' : 'incorrect-fb');
+  fb.innerHTML = (wasCorrect ? '✅ Correct! ' : '❌ Incorrect. ') + c.explain;
+  saveMastery(topicId, checkIdx, wasCorrect);
+  if (wasCorrect) launchConfetti();
+  updateNextBtn(topicId);
+}
+
+function checkFITB(uid, correctAnswer, topicId, checkIdx) {
+  if (checkState[uid]) return;
+  const input = document.getElementById(`fitb_${uid}`);
+  if (!input) return;
+  const val = input.value.trim().toLowerCase();
+  const ans = correctAnswer.toLowerCase();
+  const wasCorrect = val === ans || val.includes(ans) || ans.includes(val);
+  checkState[uid] = true;
+  input.classList.add(wasCorrect ? 'correct-input' : 'incorrect-input');
+  input.disabled = true;
+  if (!wasCorrect) input.value = correctAnswer;
+  const fb = document.getElementById(`fb_${uid}`);
+  const c = LESSONS[topicId].checks[checkIdx];
+  fb.className = 'kc-feedback show-fb ' + (wasCorrect ? 'correct-fb' : 'incorrect-fb');
+  fb.innerHTML = (wasCorrect ? '✅ Correct! ' : `❌ The correct answer is: <strong>${correctAnswer}</strong>. `) + c.explain;
+  saveMastery(topicId, checkIdx, wasCorrect);
+  if (wasCorrect) launchConfetti();
+  updateNextBtn(topicId);
+}
+
+// ===================== DRAG AND DROP =====================
+function onDragStart(e, id) {
+  dragSrc = id;
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDrop(e, uid, dropIdx, topicId, checkIdx, totalPairs) {
+  e.preventDefault();
+  const dropZone = document.getElementById(`drop_${uid}_${dropIdx}`);
+  dropZone.classList.remove('drag-over');
+  if (!dragSrc) return;
+  const dragEl = document.getElementById(dragSrc);
+  if (!dragEl) return;
+  const term = dragEl.dataset.term;
+  const def = dropZone.dataset.def;
+  const lesson = LESSONS[topicId];
+  const c = lesson.checks[checkIdx];
+  const match = c.pairs.find(p => p.term === term && p.def === def);
+  dropZone.textContent = term;
+  dropZone.classList.remove('drag-over');
+  if (match) {
+    dropZone.classList.add('matched-correct');
+    dragEl.style.opacity = '0.3';
+    dragEl.draggable = false;
+  } else {
+    dropZone.classList.add('matched-incorrect');
+    setTimeout(() => {
+      dropZone.classList.remove('matched-incorrect');
+      dropZone.textContent = 'Drop here';
+    }, 1000);
+  }
+  // check if all matches correct
+  const allDrops = document.querySelectorAll(`[id^="drop_${uid}_"]`);
+  const allCorrect = [...allDrops].every(dz => dz.classList.contains('matched-correct'));
+  if (allCorrect && !checkState[uid]) {
+    checkState[uid] = true;
+    const fb = document.getElementById(`fb_${uid}`);
+    fb.className = 'kc-feedback show-fb correct-fb';
+    fb.innerHTML = '✅ All matched correctly! ' + c.explain;
+    saveMastery(topicId, checkIdx, true);
+    launchConfetti();
+    updateNextBtn(topicId);
+  }
+  dragSrc = null;
+}
+
+// ===================== NEXT BUTTON =====================
+function updateNextBtn(topicId) {
+  const lesson = LESSONS[topicId];
+  const allDone = lesson.checks.every((_, i) => checkState[`${topicId}_${i}`]);
+  const row = document.getElementById(`next-btn-row-${topicId}`);
+  if (!row) return;
+  const m = getMastery(topicId);
+  const topicIdx = TOPICS.findIndex(t => t.id === topicId);
+  const nextTopic = TOPICS[topicIdx + 1];
+  if (allDone) {
+    row.innerHTML = `
+      <div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:14px;padding:1rem 1.25rem;font-size:0.9rem;color:#065F46;margin-bottom:1rem">
+        🎉 Section complete! Your mastery for this topic: <strong>${m}%</strong>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="next-lesson-btn" onclick="closelesson()">← Back to Topics</button>
+        ${nextTopic ? `<button class="next-lesson-btn" onclick="showLesson('${nextTopic.id}')">Next: ${nextTopic.title} →</button>` : '<button class="next-lesson-btn" onclick="showScreen(\'practicetest\')">🏆 Take Practice Test →</button>'}
+      </div>`;
+  }
+}
+
+// ===================== REVEAL TOGGLE =====================
+function toggleReveal(id, btn) {
+  const el = document.getElementById(id);
+  if (el.classList.contains('open')) {
+    el.classList.remove('open');
+    btn.textContent = btn.textContent.replace('Hide','💡 Reveal').replace('📖 Show','📖 Show');
+  } else {
+    el.classList.add('open');
+    btn.textContent = '🔼 Hide Answer';
+  }
+}
+
+// ===================== PRACTICE TEST =====================
+let selectedTestMode = 'quick';
+function selectTestMode(mode) {
+  selectedTestMode = mode;
+  document.querySelectorAll('.quiz-mode-btn').forEach(b => b.classList.remove('selected-mode'));
+  document.getElementById('mode-' + mode).classList.add('selected-mode');
+}
+
+function beginPracticeTest() {
+  clearInterval(timerInterval);
+  const mcPool = [...MC_QUESTIONS];
+  const tfPool = [...TF_QUESTIONS];
+  const doRandom = document.getElementById('random-toggle').checked;
+  if (doRandom) { mcPool.sort(() => Math.random() - 0.5); tfPool.sort(() => Math.random() - 0.5); }
+
+  let questions = [];
+  if (selectedTestMode === 'quick') {
+    questions = mcPool.slice(0, 25).map(q => ({...q, qtype: 'mc'}));
+  } else if (selectedTestMode === 'standard') {
+    questions = [
+      ...mcPool.slice(0, 45).map(q => ({...q, qtype: 'mc'})),
+      ...tfPool.slice(0, 15).map(q => ({...q, qtype: 'tf'}))
+    ];
+    if (doRandom) questions.sort(() => Math.random() - 0.5);
+  } else {
+    questions = [
+      ...mcPool.map(q => ({...q, qtype: 'mc'})),
+      ...tfPool.map(q => ({...q, qtype: 'tf'}))
+    ];
+    if (doRandom) questions.sort(() => Math.random() - 0.5);
+  }
+
+  testQuestions = questions;
+  testIndex = 0;
+  testScore = 0;
+  testAnswered = false;
+  testFlagged = new Array(questions.length).fill(false);
+  testMissed = [];
+
+  document.getElementById('test-start-screen').style.display = 'none';
+  document.getElementById('test-results-screen').style.display = 'none';
+  document.getElementById('test-in-progress').style.display = 'block';
+
+  if (document.getElementById('timer-toggle').checked) {
+    const mins = selectedTestMode === 'quick' ? 30 : selectedTestMode === 'standard' ? 60 : 90;
+    timerSeconds = mins * 60;
+    document.getElementById('timer-display').style.display = 'block';
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+      timerSeconds--;
+      updateTimerDisplay();
+      if (timerSeconds <= 0) { clearInterval(timerInterval); showTestResults(); }
+    }, 1000);
+  } else {
+    document.getElementById('timer-display').style.display = 'none';
+  }
+  loadTestQuestion();
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerSeconds / 60);
+  const s = timerSeconds % 60;
+  const d = document.getElementById('timer-display');
+  d.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  d.className = 'timer-display' + (timerSeconds < 120 ? ' warning' : '');
+}
+
+function loadTestQuestion() {
+  const q = testQuestions[testIndex];
+  const total = testQuestions.length;
+  document.getElementById('test-q-count').textContent = `Question ${testIndex + 1} of ${total}`;
+  document.getElementById('test-q-num').textContent = `Question ${testIndex + 1}`;
+  document.getElementById('testProgressBar').style.width = ((testIndex / total) * 100) + '%';
+  document.getElementById('test-score-display').textContent = `Score: ${testScore}/${testIndex}`;
+  document.getElementById('test-feedback').className = 'quiz-feedback';
+  document.getElementById('test-feedback').textContent = '';
+  document.getElementById('test-next-btn').classList.remove('visible');
+  const flagBtn = document.getElementById('flag-btn');
+  flagBtn.className = 'flag-btn' + (testFlagged[testIndex] ? ' flagged' : '');
+  flagBtn.textContent = testFlagged[testIndex] ? '🚩 Flagged' : '🚩 Flag';
+
+  if (q.qtype === 'mc') {
+    document.getElementById('test-mc-wrap').style.display = 'block';
+    document.getElementById('test-tf-wrap').style.display = 'none';
+    const letters = ['A','B','C','D'];
+    const opts = document.getElementById('test-options');
+    opts.innerHTML = '';
+    q.opts.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-option';
+      btn.innerHTML = `<span class="opt-letter">${letters[i]}</span>${opt}`;
+      btn.onclick = () => answerTestMC(i);
+      opts.appendChild(btn);
+    });
+  } else {
+    document.getElementById('test-mc-wrap').style.display = 'none';
+    document.getElementById('test-tf-wrap').style.display = 'block';
+    const btns = document.querySelectorAll('.tf-quiz-btn');
+    btns.forEach(b => { b.className = 'tf-quiz-btn'; b.disabled = false; });
+  }
+  testAnswered = false;
+  document.getElementById('test-skip-btn').style.display = 'block';
+}
+
+function answerTestMC(idx) {
+  if (testAnswered) return;
+  testAnswered = true;
+  const q = testQuestions[testIndex];
+  const opts = document.querySelectorAll('#test-options .quiz-option');
+  const fb = document.getElementById('test-feedback');
+  opts.forEach(o => o.classList.add('locked'));
+  opts[q.correct].classList.add('exam-reveal');
+  const wasCorrect = idx === q.correct;
+  if (wasCorrect) { opts[idx].classList.remove('exam-reveal'); opts[idx].classList.add('exam-correct'); testScore++; launchConfetti(); }
+  else { opts[idx].classList.add('exam-incorrect'); testMissed.push({...q, yourAnswer: q.opts[idx]}); }
+  document.getElementById('test-score-display').textContent = `Score: ${testScore}/${testIndex + 1}`;
+  if (document.getElementById('study-mode-toggle').checked) {
+    fb.className = 'quiz-feedback show';
+    fb.innerHTML = (wasCorrect ? '✅ ' : '❌ ') + q.explain;
+  }
+  document.getElementById('test-skip-btn').style.display = 'none';
+  document.getElementById('test-next-btn').textContent = testIndex < testQuestions.length - 1 ? 'Next →' : 'Finish Test';
+  document.getElementById('test-next-btn').classList.add('visible');
+}
+
+function answerTF(selected) {
+  if (testAnswered) return;
+  testAnswered = true;
+  const q = testQuestions[testIndex];
+  const wasCorrect = selected === q.answer;
+  const btns = document.querySelectorAll('.tf-quiz-btn');
+  btns.forEach(b => b.classList.add('locked'));
+  const trueBtn = btns[0]; const falseBtn = btns[1];
+  if (wasCorrect) { (selected ? trueBtn : falseBtn).classList.add('exam-correct'); testScore++; launchConfetti(); }
+  else {
+    (selected ? trueBtn : falseBtn).classList.add('exam-incorrect');
+    (!selected ? trueBtn : falseBtn).classList.add('exam-correct');
+    testMissed.push({...q, yourAnswer: selected ? 'True' : 'False'});
+  }
+  document.getElementById('test-score-display').textContent = `Score: ${testScore}/${testIndex + 1}`;
+  if (document.getElementById('study-mode-toggle').checked) {
+    const fb = document.getElementById('test-feedback');
+    fb.className = 'quiz-feedback show';
+    fb.innerHTML = (wasCorrect ? '✅ ' : '❌ ') + q.explain;
+  }
+  document.getElementById('test-skip-btn').style.display = 'none';
+  document.getElementById('test-next-btn').textContent = testIndex < testQuestions.length - 1 ? 'Next →' : 'Finish Test';
+  document.getElementById('test-next-btn').classList.add('visible');
+}
+
+function toggleFlag() {
+  testFlagged[testIndex] = !testFlagged[testIndex];
+  const btn = document.getElementById('flag-btn');
+  btn.className = 'flag-btn' + (testFlagged[testIndex] ? ' flagged' : '');
+  btn.textContent = testFlagged[testIndex] ? '🚩 Flagged' : '🚩 Flag';
+}
+
+function skipQuestion() {
+  testMissed.push({...testQuestions[testIndex], yourAnswer: '(Skipped)'});
+  nextTestQuestion();
+}
+
+function nextTestQuestion() {
+  testIndex++;
+  if (testIndex >= testQuestions.length) { showTestResults(); }
+  else { loadTestQuestion(); }
+}
+
+function endTestEarly() { if (confirm('End test and see results?')) showTestResults(); }
+
+function showTestResults() {
+  clearInterval(timerInterval);
+  document.getElementById('test-in-progress').style.display = 'none';
+  document.getElementById('test-results-screen').style.display = 'block';
+  const answered = Math.min(testIndex, testQuestions.length);
+  const pct = answered > 0 ? Math.round((testScore / answered) * 100) : 0;
+  document.getElementById('final-score').textContent = pct + '%';
+  document.getElementById('final-label').textContent = `${testScore} correct out of ${answered} answered`;
+  let grade, emoji;
+  if (pct >= 90) { grade = 'A — Excellent!'; emoji = '🏆'; }
+  else if (pct >= 80) { grade = 'B — Good job!'; emoji = '⭐'; }
+  else if (pct >= 70) { grade = 'C — Keep studying'; emoji = '📚'; }
+  else { grade = 'Below 70 — Review the Content first'; emoji = '💪'; }
+  document.getElementById('results-emoji').textContent = emoji;
+  document.getElementById('final-grade').textContent = grade;
+  document.getElementById('rb-correct').textContent = testScore;
+  document.getElementById('rb-incorrect').textContent = testMissed.length;
+  document.getElementById('rb-flagged').textContent = testFlagged.filter(Boolean).length;
+
+  const entry = { date: new Date().toLocaleDateString(), score: pct, correct: testScore, total: answered };
+  scoreHistory.unshift(entry);
+  if (scoreHistory.length > 20) scoreHistory.pop();
+  localStorage.setItem('bio130_scores', JSON.stringify(scoreHistory));
+  if (pct >= 80) launchConfetti();
+
+  if (testMissed.length > 0) {
+    const sec = document.getElementById('missed-review-section');
+    sec.style.display = 'block';
+    const container = document.getElementById('missed-items');
+    container.innerHTML = testMissed.slice(0, 10).map(m => `
+      <div class="missed-item">
+        <div class="mq-text">${m.q}</div>
+        <div class="mq-your">❌ Your answer: ${m.yourAnswer || '?'}</div>
+        <div class="mq-correct">✅ Correct: ${m.qtype === 'tf' ? (m.answer ? 'True' : 'False') : (m.opts ? m.opts[m.correct] : '')}</div>
+        <div class="mq-explain">${m.explain}</div>
+      </div>`).join('');
+  }
+
+  // show start screen for retake
+  document.getElementById('test-start-screen').style.display = 'none';
+}
+
+// ===================== SCORE TRACKER =====================
+function updateScoreTracker() {
+  document.getElementById('st-total').textContent = scoreHistory.length;
+  const empty = document.getElementById('st-empty');
+  if (scoreHistory.length === 0) {
+    document.getElementById('st-avg').textContent = '—';
+    document.getElementById('st-best').textContent = '—';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  const avg = Math.round(scoreHistory.reduce((s, e) => s + e.score, 0) / scoreHistory.length);
+  const best = Math.max(...scoreHistory.map(e => e.score));
+  document.getElementById('st-avg').textContent = avg + '%';
+  document.getElementById('st-best').textContent = best + '%';
+  const ul = document.getElementById('st-history');
+  ul.innerHTML = '';
+  scoreHistory.slice(0, 10).forEach(e => {
+    let cls = e.score >= 90 ? 'pill-a' : e.score >= 80 ? 'pill-b' : e.score >= 70 ? 'pill-c' : 'pill-d';
+    const li = document.createElement('li');
+    li.innerHTML = `<span>${e.date} &mdash; ${e.correct}/${e.total} answered</span><span class="st-pill ${cls}">${e.score}%</span>`;
+    ul.appendChild(li);
+  });
+}
+
+// ===================== UI HELPERS =====================
+function toggleDark() {
+  darkMode = !darkMode;
+  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : '');
+  document.getElementById('darkBtn').textContent = darkMode ? '☀️' : '🌙';
+}
+
+function printNotes() { window.print(); }
+
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#7C3AED','#1E3A8A','#10B981','#A855F7','#F59E0B','#EF4444'];
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.cssText = `left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*0.4}s;`;
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 3500);
+  }
+}
+
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTopBtn').classList.toggle('visible', window.scrollY > 400);
+});
+
+// Init
+showScreen('home');
+</script>
+</body>
+</html>
